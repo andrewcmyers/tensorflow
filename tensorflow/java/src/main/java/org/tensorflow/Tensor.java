@@ -41,7 +41,7 @@ import java.util.Arrays;
  * }
  * }</pre>
  */
-public class Tensor<T> implements AutoCloseable {
+abstract public class Tensor<T> implements AutoCloseable {
 
   /**
    * Create a Tensor from a Java object.
@@ -83,7 +83,7 @@ public class Tensor<T> implements AutoCloseable {
   }
   
   public static <T> Tensor<T> create_unsafe(Object obj) {
-	Tensor<T> t = new Tensor<T>(dataTypeOf(obj));
+  	TensorValue<T> t = new TensorValue<T>(dataTypeOf(obj));
     t.shapeCopy = new long[numDimensions(obj)];
     fillShape(obj, 0, t.shapeCopy);
     if (t.dtype != DataType.STRING) {
@@ -100,7 +100,7 @@ public class Tensor<T> implements AutoCloseable {
     }
     return t;
   }
-  
+    
   // XXX where do these methods belong?
   public static Tensor<Float> create(float data) {
 	  return create(data, BaseType.Float);
@@ -163,7 +163,7 @@ public class Tensor<T> implements AutoCloseable {
    * @throws IllegalArgumentException If the tensor shape is not compatible with the buffer
    */
   public static Tensor<Integer> create(long[] shape, IntBuffer data) {
-    Tensor<Integer> t = allocateForBuffer(DataType.INT32, shape, data.remaining());
+    TensorValue<Integer> t = allocateForBuffer(DataType.INT32, shape, data.remaining());
     t.buffer().asIntBuffer().put(data);
     return t;
   }
@@ -261,17 +261,12 @@ public class Tensor<T> implements AutoCloseable {
    * @param type any (non-null) array of the correct type.
    * @return this
    */
- @SuppressWarnings("unchecked") public <U> Tensor<U> expect(BaseType<U> type) {
-	  DataType dt = type.dataType();
-	  if (!dt.equals(dtype))
-		  throw new IllegalArgumentException("Cannot cast from tensor of " + dtype + " to tensor of " + dt);
-	  return ((Tensor<U>) this); 
-  }
+  abstract public <U> Tensor<U> expect(BaseType<U> type);
 
   // Helper function to allocate a Tensor for the create() methods that create a Tensor from
   // a java.nio.Buffer.
   // Requires: dataType matches T
-  private static <T> Tensor<T> allocateForBuffer(DataType dataType, long[] shape, int nBuffered) {
+  private static <T> TensorValue<T> allocateForBuffer(DataType dataType, long[] shape, int nBuffered) {
     final int nflattened = numElements(shape);
     int nbytes = 0;
     if (dataType != DataType.STRING) {
@@ -283,7 +278,7 @@ public class Tensor<T> implements AutoCloseable {
       // DT_STRING tensor encoded in a ByteBuffer.
       nbytes = nBuffered;
     }
-    Tensor<T> t = new Tensor<T>(dataType);
+    TensorValue<T> t = new TensorValue<>(dataType);
     t.shapeCopy = Arrays.copyOf(shape, shape.length);
     t.nativeHandle = allocate(t.dtype.c(), t.shapeCopy, nbytes);
     return t;
@@ -296,17 +291,10 @@ public class Tensor<T> implements AutoCloseable {
    *
    * <p>The Tensor object is no longer usable after {@code close} returns.
    */
-  public void close() {
-    if (nativeHandle != 0) {
-      delete(nativeHandle);
-      nativeHandle = 0;
-    }
-  }
+  @Override abstract public void close();
 
   /** Returns the {@link DataType} of elements stored in the Tensor. */
-  public DataType dataType() {
-    return dtype;
-  }
+  abstract public DataType dataType();
 
   /**
    * Returns the number of dimensions (sometimes referred to as <a
@@ -314,19 +302,13 @@ public class Tensor<T> implements AutoCloseable {
    *
    * <p>Will be 0 for a scalar, 1 for a vector, 2 for a matrix, 3 for a 3-dimensional tensor etc.
    */
-  public int numDimensions() {
-    return shapeCopy.length;
-  }
+  abstract public int numDimensions();
 
   /** Returns the size, in bytes, of the tensor data. */
-  public int numBytes() {
-    return buffer().remaining();
-  }
+  abstract public int numBytes();
 
   /** Returns the number of elements in a flattened (1-D) view of the tensor. */
-  public int numElements() {
-    return numElements(shapeCopy);
-  }
+  abstract public int numElements();
 
   /**
    * Returns the <a href="https://www.tensorflow.org/resources/dims_types.html#shape">shape</a> of
@@ -334,18 +316,14 @@ public class Tensor<T> implements AutoCloseable {
    *
    * @return an array where the i-th element is the size of the i-th dimension of the tensor.
    */
-  public long[] shape() {
-    return shapeCopy;
-  }
+  abstract public Shape shape();
 
   /**
    * Returns the value in a scalar {@link DataType#FLOAT} tensor.
    *
    * @throws IllegalArgumentException if the Tensor does not represent a float scalar.
    */
-  public float floatValue() {
-    return scalarFloat(nativeHandle);
-  }
+  abstract public float floatValue();
 
   /**
    * Returns the value in a scalar {@link DataType#DOUBLE} tensor.
@@ -503,10 +481,7 @@ public class Tensor<T> implements AutoCloseable {
    * @throws BufferOverflowException If there is insufficient space in the given buffer for the data
    *     in this tensor
    */
-   public void writeTo(ByteBuffer dst) {
-	  ByteBuffer src = buffer();
-	  dst.put(src);
-   }
+   abstract public void writeTo(ByteBuffer dst);
 
   /**
    * Create a Tensor object from a handle to the C TF_Tensor object.
@@ -514,7 +489,7 @@ public class Tensor<T> implements AutoCloseable {
    * <p>Takes ownership of the handle.
    */
   static <T> Tensor<T> fromHandle(long handle) {
-    Tensor<T> t = new Tensor<T>(DataType.fromC(dtype(handle)));
+    Tensor<T> t = new TensorValue<T>(DataType.fromC(dtype(handle)));
     t.shapeCopy = shape(handle);
     t.nativeHandle = handle;
     return t;
@@ -524,10 +499,6 @@ public class Tensor<T> implements AutoCloseable {
     return nativeHandle;
   }
 
-  Tensor(DataType t) {
-	  dtype = t;
-  }
-  
   private ByteBuffer buffer() {
     return buffer(nativeHandle).order(ByteOrder.nativeOrder());
   }
@@ -544,7 +515,7 @@ public class Tensor<T> implements AutoCloseable {
             numElements, Arrays.toString(shape)));
   }
 
-  private static int numElements(long[] shape) {
+  static int numElements(long[] shape) {
     // assumes a fully-known shape
     int n = 1;
     for (int i = 0; i < shape.length; i++) {
@@ -570,6 +541,8 @@ public class Tensor<T> implements AutoCloseable {
     }
     throw new IllegalArgumentException("DataType " + dataType + " is not supported yet");
   }
+
+  Tensor() {}  
 
   public static DataType dataTypeOf(Object o) {
     if (o.getClass().isArray()) {
@@ -598,7 +571,7 @@ public class Tensor<T> implements AutoCloseable {
     }
   }
 
-  private static int numDimensions(Object o) {
+  static int numDimensions(Object o) {
     if (o.getClass().isArray()) {
       // byte[] is a DataType.STRING scalar.
       Object e = Array.get(o, 0);
@@ -610,7 +583,7 @@ public class Tensor<T> implements AutoCloseable {
     return 0;
   }
 
-  private static void fillShape(Object o, int dim, long[] shape) {
+  static void fillShape(Object o, int dim, long[] shape) {
     if (shape == null || dim == shape.length) {
       return;
     }
@@ -642,11 +615,11 @@ public class Tensor<T> implements AutoCloseable {
     long[] oShape = new long[numDimensions()];
     fillShape(o, 0, oShape);
     for (int i = 0; i < oShape.length; ++i) {
-      if (oShape[i] != shape()[i]) {
+      if (oShape[i] != shape().asArray()[i]) {
         throw new IllegalArgumentException(
             String.format(
                 "cannot copy Tensor with shape %s into object with shape %s",
-                Arrays.toString(shape()), Arrays.toString(oShape)));
+                Arrays.toString(shape().asArray()), Arrays.toString(oShape)));
       }
     }
   }

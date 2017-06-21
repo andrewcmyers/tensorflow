@@ -296,35 +296,35 @@ public class TensorTest {
     try (Tensor<Float> t = Tensor.create(2.718f, BaseType.Float)) {
       assertEquals(DataType.FLOAT, t.dataType());
       assertEquals(0, t.numDimensions());
-      assertEquals(0, t.shape().length);
+      assertEquals(0, t.shape().numDimensions());
       assertEquals(2.718f, t.floatValue(), EPSILON_F);
     }
 
     try (Tensor<Float> t = Tensor.create(3.1415, BaseType.Float)) {
       assertEquals(DataType.DOUBLE, t.dataType());
       assertEquals(0, t.numDimensions());
-      assertEquals(0, t.shape().length);
+      assertEquals(0, t.shape().numDimensions());
       assertEquals(3.1415, t.doubleValue(), EPSILON);
     }
 
     try (Tensor<Integer> t = Tensor.create(-33)) {
       assertEquals(DataType.INT32, t.dataType());
       assertEquals(0, t.numDimensions());
-      assertEquals(0, t.shape().length);
+      assertEquals(0, t.shape().numDimensions());
       assertEquals(-33, t.intValue());
     }
 
     try (Tensor<Long> t = Tensor.create(8589934592L)) {
       assertEquals(DataType.INT64, t.dataType());
       assertEquals(0, t.numDimensions());
-      assertEquals(0, t.shape().length);
+      assertEquals(0, t.shape().numDimensions());
       assertEquals(8589934592L, t.longValue());
     }
 
     try (Tensor<Boolean> t = Tensor.create(true)) {
       assertEquals(DataType.BOOL, t.dataType());
       assertEquals(0, t.numDimensions());
-      assertEquals(0, t.shape().length);
+      assertEquals(0, t.shape().numDimensions());
       assertTrue(t.booleanValue());
     }
 
@@ -332,7 +332,7 @@ public class TensorTest {
     try (Tensor<Byte> t = Tensor.create(bytes)) {
       assertEquals(DataType.STRING, t.dataType());
       assertEquals(0, t.numDimensions());
-      assertEquals(0, t.shape().length);
+      assertEquals(0, t.shape().numDimensions());
       assertArrayEquals(bytes, t.bytesValue());
     }
   }
@@ -343,7 +343,7 @@ public class TensorTest {
     try (Tensor<Double> t = Tensor.create(vector)) {
       assertEquals(DataType.DOUBLE, t.dataType());
       assertEquals(1, t.numDimensions());
-      assertArrayEquals(new long[] {3}, t.shape());
+      assertArrayEquals(new long[] {3}, t.shape().asArray());
 
       double[] got = new double[3];
       assertArrayEquals(vector, t.copyTo(got), EPSILON);
@@ -353,7 +353,7 @@ public class TensorTest {
     try (Tensor<Integer> t = Tensor.create(matrix)) {
       assertEquals(DataType.INT32, t.dataType());
       assertEquals(2, t.numDimensions());
-      assertArrayEquals(new long[] {2, 3}, t.shape());
+      assertArrayEquals(new long[] {2, 3}, t.shape().asArray());
 
       int[][] got = new int[2][3];
       assertArrayEquals(matrix, t.copyTo(got));
@@ -365,7 +365,7 @@ public class TensorTest {
     try (Tensor<Long> t = Tensor.create(threeD)) {
       assertEquals(DataType.INT64, t.dataType());
       assertEquals(3, t.numDimensions());
-      assertArrayEquals(new long[] {2, 5, 1}, t.shape());
+      assertArrayEquals(new long[] {2, 5, 1}, t.shape().asArray());
 
       long[][][] got = new long[2][5][1];
       assertArrayEquals(threeD, t.copyTo(got));
@@ -379,7 +379,7 @@ public class TensorTest {
     try (Tensor<Boolean> t = Tensor.create(fourD, BaseType.Bool)) {
       assertEquals(DataType.BOOL, t.dataType());
       assertEquals(4, t.numDimensions());
-      assertArrayEquals(new long[] {3, 1, 2, 4}, t.shape());
+      assertArrayEquals(new long[] {3, 1, 2, 4}, t.shape().asArray());
 
       boolean[][][][] got = new boolean[3][1][2][4];
       assertArrayEquals(fourD, t.copyTo(got));
@@ -482,7 +482,7 @@ public class TensorTest {
       Tensor<?> cpy = Tensor.fromHandle(src.getNativeHandle());
       assertEquals(src.dataType(), cpy.dataType());
       assertEquals(src.numDimensions(), cpy.numDimensions());
-      assertArrayEquals(src.shape(), cpy.shape());
+      assertArrayEquals(src.shape().asArray(), cpy.shape().asArray());
       assertArrayEquals(matrix, cpy.copyTo(new float[2][3]));
     }
   }

@@ -29,6 +29,7 @@ import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
+import org.tensorflow.Shape;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
 
@@ -112,14 +113,14 @@ public class LabelImage {
       g.importGraphDef(graphDef);
       try (Session s = new Session(g);
           Tensor<Float> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(BaseType.Float)) {
-        final long[] rshape = result.shape();
-        if (result.numDimensions() != 2 || rshape[0] != 1) {
+        final Shape rshape = result.shape();
+        if (result.numDimensions() != 2 || rshape.size(0) != 1) {
           throw new RuntimeException(
               String.format(
                   "Expected model to produce a [1 N] shaped tensor where N is the number of labels, instead it produced one with shape %s",
-                  Arrays.toString(rshape)));
+                  rshape));
         }
-        int nlabels = (int) rshape[1];
+        int nlabels = (int) rshape.size(1);
         return result.copyTo(new float[1][nlabels])[0];
       }
     }
