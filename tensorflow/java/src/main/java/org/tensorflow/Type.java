@@ -33,7 +33,8 @@ public class Type<T> {
 	// XXX Name these to match Java or TF conventions? Currently following TF.
 	// XXX There is potential for confusion regardless of how it's done.
 	// XXX Alternatively a new set of classes named Float, Int32, Int64, Uint8 etc. could be created inside
-	// XXX tensorflow. We don't really need to use the Java classes.
+	// XXX tensorflow. We don't really need to use the Java classes, though it is convenient for defaultValue()
+	// XXX and defaultScalar().
 	public static final Type<Float> FLOAT = new Type<Float>(new Float[]{0f}, DataType.FLOAT);
 	public static final Type<Integer> INT32 = new Type<Integer>(new Integer[]{0}, DataType.INT32);
 	public static final Type<Long> INT64 = new Type<Long>(new Long[]{0L}, DataType.INT64);
