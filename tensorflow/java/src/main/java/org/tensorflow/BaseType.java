@@ -34,11 +34,11 @@ public class BaseType<T> {
 	// XXX There is potential for confusion regardless of how it's done.
 	// XXX Alternatively a new set of classes named Float, Int32, Int64, Uint8 etc. could be created inside
 	// XXX tensorflow. We don't really need to use the Java classes.
-	public static final BaseType<Float> FLOAT = new BaseType<Float>(new Float[1], DataType.FLOAT);
-	public static final BaseType<Integer> INT32 = new BaseType<Integer>(new Integer[1], DataType.INT32);
-	public static final BaseType<Long> INT64 = new BaseType<Long>(new Long[1], DataType.INT64);
-	public static final BaseType<Double> DOUBLE = new BaseType<Double>(new Double[1], DataType.DOUBLE);
-	public static final BaseType<Boolean> BOOL = new BaseType<Boolean>(new Boolean[1], DataType.BOOL);
-	public static final BaseType<String> STRING = new BaseType<String>(new String[1], DataType.STRING);
-	public static final BaseType<Byte> UINT8 = new BaseType<Byte>(new Byte[1], DataType.UINT8);	
+	public static final BaseType<Float> FLOAT = new BaseType<Float>(new Float[]{0f}, DataType.FLOAT);
+	public static final BaseType<Integer> INT32 = new BaseType<Integer>(new Integer[]{0}, DataType.INT32);
+	public static final BaseType<Long> INT64 = new BaseType<Long>(new Long[]{0L}, DataType.INT64);
+	public static final BaseType<Double> DOUBLE = new BaseType<Double>(new Double[]{0d}, DataType.DOUBLE);
+	public static final BaseType<Boolean> BOOL = new BaseType<Boolean>(new Boolean[]{false}, DataType.BOOL);
+	public static final BaseType<String> STRING = new BaseType<String>(new String[]{null}, DataType.STRING);
+	public static final BaseType<Byte> UINT8 = new BaseType<Byte>(new Byte[]{0}, DataType.UINT8);	
 }

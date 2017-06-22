@@ -300,7 +300,7 @@ public class TensorTest {
       assertEquals(2.718f, t.floatValue(), EPSILON_F);
     }
 
-    try (Tensor<Float> t = Tensor.create(3.1415, BaseType.FLOAT)) {
+    try (Tensor<Double> t = Tensor.create(3.1415, BaseType.DOUBLE)) {
       assertEquals(DataType.DOUBLE, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
@@ -329,7 +329,7 @@ public class TensorTest {
     }
 
     final byte[] bytes = {1, 2, 3, 4};
-    try (Tensor<Byte> t = Tensor.create(bytes)) {
+    try (Tensor<String> t = Tensor.create(bytes, BaseType.STRING)) {
       assertEquals(DataType.STRING, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);

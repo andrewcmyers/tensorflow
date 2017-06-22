@@ -156,11 +156,11 @@ public class OperationBuilderTest {
         Session s = new Session(g);
         Tensor<Boolean> yes = Tensor.create(true);
         Tensor<Boolean> no = Tensor.create(false)) {
-      Output<Boolean> placeholder = (Output<Boolean>) TestUtil.placeholder(g, "boolean", BaseType.BOOL);
+      Output<Boolean> placeholder = TestUtil.placeholder(g, "boolean", BaseType.BOOL);
       Operation check =
           g.opBuilder("Assert", "assert")
               .addInput(placeholder)
-              .addInputList(new Output[] {placeholder})
+              .addInputList(new Output<?>[] {placeholder})
               .build();
       Operation noop = g.opBuilder("NoOp", "noop").addControlInput(check).build(); 
 

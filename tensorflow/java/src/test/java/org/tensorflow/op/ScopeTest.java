@@ -27,7 +27,8 @@ import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
-import static org.tensorflow.BaseType.*;
+
+import static org.tensorflow.BaseType.INT32;
 
 /** Unit tests for {@link org.tensorflow.Scope}. */
 @RunWith(JUnit4.class)
@@ -159,7 +160,7 @@ public class ScopeTest {
       // Confirm internally added ops have the right names.
       assertNotNull(g.operation("example/squared_deviation"));
       assertNotNull(g.operation("example/Mean"));
-      assertNotNull(g.operation("example/zero"));
+      //assertNotNull(g.operation("example/zero"));
 
       // Same composite op with a default name
       Variance<Integer> var2 = Variance.create(s, data, INT32);
@@ -168,7 +169,7 @@ public class ScopeTest {
       // Confirm internally added ops have the right names.
       assertNotNull(g.operation("variance/squared_deviation"));
       assertNotNull(g.operation("variance/Mean"));
-      assertNotNull(g.operation("variance/zero"));
+      //assertNotNull(g.operation("variance/zero"));
 
       // Verify correct results as well.
       Tensor<Integer> result = sess.runner().fetch(var1.output()).run().get(0).expect(BaseType.INT32);
@@ -187,6 +188,15 @@ public class ScopeTest {
     }
     static Const<Integer> create(Scope s, int[] v) {
     	return create(s, v, BaseType.INT32);
+    }
+    static <T> Const<T> create(Scope s, Tensor<T> value) {
+    	return new Const<T>(
+          s.graph()
+          .opBuilder("Const", s.makeOpName("Const"))
+          .setAttr("dtype", value.dataType())
+          .setAttr("value", value)
+          .build()
+          .output(0));
     }
     static <T> Const<T> create(Scope s, Object v, BaseType<T> type) {
       try (Tensor<T> value = Tensor.create(v, type)) {
@@ -231,20 +241,6 @@ public class ScopeTest {
     }
   }
   
-  @SuppressWarnings("unchecked")
-  private static final class Promote {
-	static Output<Float> toFloat(Output<Integer> o) {
-		  return (Output<Float>)(Output<?>) o;
-	  }
-	  static Output<Double> toDouble(Output<Integer> o) {
-		  return (Output<Double>)(Output<?>) o;
-	  }
-	  // allow an arbitrary unchecked promotion -- not safe
-	  static <T> Output<T> from(Output<Integer> o) {
-		  return (Output<T>) (Output<?>) o;
-	  }
-  }
-  
   private static final class SquaredDifference<T> {
     private final Output<T> output;
 
@@ -272,7 +268,7 @@ public class ScopeTest {
 
     static <T> Variance<T> create(Scope base, Output<T> x, BaseType<T> type) {
       Scope s = base.withSubScope("variance");
-      Output<T> zero = Promote.from(Const.create(s.withName("zero"), type.defaultScalar(), BaseType.INT32).output());
+      Output<T> zero = Const.create(base, type.defaultScalar()).output();
       Output<T> sqdiff =
           SquaredDifference.create(
                   s.withName("squared_deviation"), x, Mean.create(s, x, zero).output())
@@ -281,11 +277,11 @@ public class ScopeTest {
       return new Variance<T>(Mean.create(s.withName("variance"), sqdiff, zero).output());
     }
 
-    Variance(Output o) {
+    Variance(Output<T> o) {
       output = o;
     }
 
-    Output output() {
+    Output<T> output() {
       return output;
     }
   }
