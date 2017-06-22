@@ -24,14 +24,14 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import org.tensorflow.BaseType;
+import org.tensorflow.Type;
 import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
-import static org.tensorflow.BaseType.*;
+import static org.tensorflow.Type.*;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
@@ -180,7 +180,7 @@ public class LabelImage {
       return binaryOp3("ExpandDims", input, dim);
     }
 
-    <T, U> Output<U> cast(Output<T> value, BaseType<U> type) {
+    <T, U> Output<U> cast(Output<T> value, Type<U> type) {
       DataType dtype = type.dataType();
       return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
     }
@@ -193,7 +193,7 @@ public class LabelImage {
           .output(0);
     }
 
-    <T> Output<T> constant(String name, Object value, BaseType<T> type) {
+    <T> Output<T> constant(String name, Object value, Type<T> type) {
       try (Tensor<T> t = Tensor.create(value, type)) {
         return g.opBuilder("Const", name)
             .setAttr("dtype", t.dataType())

@@ -77,7 +77,7 @@ public class Tensor<T> implements AutoCloseable {
    * @throws IllegalArgumentException if {@code obj} is not compatible with the TensorFlow type
    *     system.
    */
-  public static <T> Tensor<T> create(Object obj, BaseType<T> baseType) {
+  public static <T> Tensor<T> create(Object obj, Type<T> baseType) {
   	DataType dt1 = dataTypeOf(obj);
   	DataType dt2 = baseType.dataType();
   	if (!dt1.equals(dt2) && !(dt1 == DataType.STRING && dt2 == DataType.UINT8))
@@ -121,52 +121,52 @@ public class Tensor<T> implements AutoCloseable {
   
   // XXX where do these methods belong?
   public static Tensor<Float> create(float data) {
-	  return create(data, BaseType.FLOAT);
+	  return create(data, Type.FLOAT);
   }
   public static Tensor<Float> create(float[] data) {
-	  return create(data, BaseType.FLOAT);
+	  return create(data, Type.FLOAT);
   }
   public static Tensor<Float> create(float[][] data) {
-	  return create(data, BaseType.FLOAT);
+	  return create(data, Type.FLOAT);
   }
   public static Tensor<Double> create(double[] data) {
-	  return create(data, BaseType.DOUBLE);
+	  return create(data, Type.DOUBLE);
   }
   public static Tensor<Integer> create(int data) {
-	  return create(data, BaseType.INT32);
+	  return create(data, Type.INT32);
   }
   public static Tensor<Integer> create(int[] data) {
-	  return create(data, BaseType.INT32);
+	  return create(data, Type.INT32);
   }
   public static Tensor<Integer> create(int[][] data) {
-	  return create(data, BaseType.INT32);
+	  return create(data, Type.INT32);
   }
   public static Tensor<Integer> create(int[][][] data) {
-	  return create(data, BaseType.INT32);
+	  return create(data, Type.INT32);
   }
   public static Tensor<Long> create(long data) {
-	  return create(data, BaseType.INT64);
+	  return create(data, Type.INT64);
   }
   public static Tensor<Long> create(long[] data) {
-	  return create(data, BaseType.INT64);
+	  return create(data, Type.INT64);
   }
   public static Tensor<Long> create(long[][] data) {
-	  return create(data, BaseType.INT64);
+	  return create(data, Type.INT64);
   }
   public static Tensor<Long> create(long[][][] data) {
-	  return create(data, BaseType.INT64);
+	  return create(data, Type.INT64);
   }
   public static Tensor<Byte> create(byte[] data) {
-	  return create(data, BaseType.UINT8);
+	  return create(data, Type.UINT8);
   }
   public static Tensor<Byte> create(byte[][] data) {
-	  return create(data, BaseType.UINT8);
+	  return create(data, Type.UINT8);
   }
   public static Tensor<Byte> create(byte[][][] data) {
-	  return create(data, BaseType.UINT8);
+	  return create(data, Type.UINT8);
   }
   public static Tensor<Boolean> create(boolean data) {
-	  return create(data, BaseType.BOOL);
+	  return create(data, Type.BOOL);
   }
   /**
    * Create an {@link DataType#INT32} Tensor with data from the given buffer.
@@ -253,7 +253,7 @@ public class Tensor<T> implements AutoCloseable {
    * @throws IllegalArgumentException If the tensor datatype or shape is not compatible with the
    *     buffer
    */
-  public static <T> Tensor<T> create(BaseType<T> type, long[] shape, ByteBuffer data) {
+  public static <T> Tensor<T> create(Type<T> type, long[] shape, ByteBuffer data) {
 	DataType dtype = type.dataType();
     int nremaining = 0;
     if (dtype != DataType.STRING) {
@@ -279,7 +279,7 @@ public class Tensor<T> implements AutoCloseable {
    * @param type any (non-null) array of the correct type.
    * @return this
    */
- @SuppressWarnings("unchecked") public <U> Tensor<U> expect(BaseType<U> type) {
+ @SuppressWarnings("unchecked") public <U> Tensor<U> expect(Type<U> type) {
 	  DataType dt = type.dataType();
 	  if (!dt.equals(dtype))
 		  throw new IllegalArgumentException("Cannot cast from tensor of " + dtype + " to tensor of " + dt);

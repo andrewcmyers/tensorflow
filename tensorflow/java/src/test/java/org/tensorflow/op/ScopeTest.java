@@ -22,13 +22,13 @@ import static org.junit.Assert.fail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.tensorflow.BaseType;
+import org.tensorflow.Type;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 
-import static org.tensorflow.BaseType.INT32;
+import static org.tensorflow.Type.INT32;
 
 /** Unit tests for {@link org.tensorflow.Scope}. */
 @RunWith(JUnit4.class)
@@ -172,9 +172,9 @@ public class ScopeTest {
       //assertNotNull(g.operation("variance/zero"));
 
       // Verify correct results as well.
-      Tensor<Integer> result = sess.runner().fetch(var1.output()).run().get(0).expect(BaseType.INT32);
+      Tensor<Integer> result = sess.runner().fetch(var1.output()).run().get(0).expect(Type.INT32);
       assertEquals(21704, result.intValue());
-      result = sess.runner().fetch(var2.output()).run().get(0).expect(BaseType.INT32);
+      result = sess.runner().fetch(var2.output()).run().get(0).expect(Type.INT32);
       assertEquals(21704, result.intValue());
     }
   }
@@ -184,10 +184,10 @@ public class ScopeTest {
     private final Output<T> output;
     
     static Const<Integer> create(Scope s, int v) {
-    	return create(s, v, BaseType.INT32);
+    	return create(s, v, Type.INT32);
     }
     static Const<Integer> create(Scope s, int[] v) {
-    	return create(s, v, BaseType.INT32);
+    	return create(s, v, Type.INT32);
     }
     static <T> Const<T> create(Scope s, Tensor<T> value) {
     	return new Const<T>(
@@ -198,7 +198,7 @@ public class ScopeTest {
           .build()
           .output(0));
     }
-    static <T> Const<T> create(Scope s, Object v, BaseType<T> type) {
+    static <T> Const<T> create(Scope s, Object v, Type<T> type) {
       try (Tensor<T> value = Tensor.create(v, type)) {
         return new Const<T>(
             s.graph()
@@ -266,7 +266,7 @@ public class ScopeTest {
   private static final class Variance<T> {
     private final Output<T> output;
 
-    static <T> Variance<T> create(Scope base, Output<T> x, BaseType<T> type) {
+    static <T> Variance<T> create(Scope base, Output<T> x, Type<T> type) {
       Scope s = base.withSubScope("variance");
       Output<T> zero = Const.create(base, type.defaultScalar()).output();
       Output<T> sqdiff =
