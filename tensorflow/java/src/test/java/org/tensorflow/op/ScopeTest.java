@@ -27,6 +27,7 @@ import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
+import static org.tensorflow.BaseType.*;
 
 /** Unit tests for {@link org.tensorflow.Scope}. */
 @RunWith(JUnit4.class)
@@ -152,7 +153,7 @@ public class ScopeTest {
       Output<Integer> data = Const.create(s.withName("data"), new int[] {600, 470, 170, 430, 300}).output();
 
       // Create a composite op with a customized name
-      Variance<Integer> var1 = Variance.create(s.withName("example"), data);
+      Variance<Integer> var1 = Variance.create(s.withName("example"), data, INT32);
       assertEquals("example/variance", var1.output().op().name());
 
       // Confirm internally added ops have the right names.
@@ -161,7 +162,7 @@ public class ScopeTest {
       assertNotNull(g.operation("example/zero"));
 
       // Same composite op with a default name
-      Variance<Integer> var2 = Variance.create(s, data);
+      Variance<Integer> var2 = Variance.create(s, data, INT32);
       assertEquals("variance/variance", var2.output().op().name());
 
       // Confirm internally added ops have the right names.
@@ -170,9 +171,9 @@ public class ScopeTest {
       assertNotNull(g.operation("variance/zero"));
 
       // Verify correct results as well.
-      Tensor<Integer> result = sess.runner().fetch(var1.output()).run().get(0).expect(BaseType.Int);
+      Tensor<Integer> result = sess.runner().fetch(var1.output()).run().get(0).expect(BaseType.INT32);
       assertEquals(21704, result.intValue());
-      result = sess.runner().fetch(var2.output()).run().get(0).expect(BaseType.Int);
+      result = sess.runner().fetch(var2.output()).run().get(0).expect(BaseType.INT32);
       assertEquals(21704, result.intValue());
     }
   }
@@ -182,13 +183,10 @@ public class ScopeTest {
     private final Output<T> output;
     
     static Const<Integer> create(Scope s, int v) {
-    	return create(s, v, BaseType.Int);
+    	return create(s, v, BaseType.INT32);
     }
     static Const<Integer> create(Scope s, int[] v) {
-    	return create(s, v, BaseType.Int);
-    }
-    static Const<Integer> create(Scope s, int[][] v) {
-    	return create(s, v, BaseType.Int);
+    	return create(s, v, BaseType.INT32);
     }
     static <T> Const<T> create(Scope s, Object v, BaseType<T> type) {
       try (Tensor<T> value = Tensor.create(v, type)) {
@@ -272,9 +270,9 @@ public class ScopeTest {
   private static final class Variance<T> {
     private final Output<T> output;
 
-    static <T> Variance<T> create(Scope base, Output<T> x) {
+    static <T> Variance<T> create(Scope base, Output<T> x, BaseType<T> type) {
       Scope s = base.withSubScope("variance");
-      Output<T> zero = Promote.from(Const.create(s.withName("zero"), new int[] {0}, BaseType.Int).output());
+      Output<T> zero = Promote.from(Const.create(s.withName("zero"), type.defaultScalar(), BaseType.INT32).output());
       Output<T> sqdiff =
           SquaredDifference.create(
                   s.withName("squared_deviation"), x, Mean.create(s, x, zero).output())

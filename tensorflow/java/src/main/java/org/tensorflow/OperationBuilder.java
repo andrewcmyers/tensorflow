@@ -96,7 +96,7 @@ public final class OperationBuilder {
     return this;
   }
 
-  public OperationBuilder addInputList(Output[] inputs) {
+  public OperationBuilder addInputList(Output<?>[] inputs) {
     Graph.Reference r = graph.ref();
     try {
       long[] opHandles = new long[inputs.length];

@@ -20,7 +20,7 @@ import java.lang.reflect.Array;
 /** Static utility functions. */
 public class TestUtil {
 	public static Output<Integer> constant(Graph g, String name, int value) {
-		try (Tensor<Integer> t = Tensor.create(value, BaseType.Int)) {
+		try (Tensor<Integer> t = Tensor.create(value, BaseType.INT32)) {
 			return g.opBuilder("Const", name)
 					.setAttr("dtype", DataType.INT32)
 					.setAttr("value", t)

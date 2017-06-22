@@ -49,7 +49,7 @@ public class OperationBuilderTest {
   @Test
   public void failOnUseAfterBuild() {
     try (Graph g = new Graph();
-        Tensor<Integer> t = Tensor.create(1, BaseType.Int)) {
+        Tensor<Integer> t = Tensor.create(1, BaseType.INT32)) {
       OperationBuilder b =
           g.opBuilder("Const", "Const").setAttr("dtype", t.dataType()).setAttr("value", t);
       b.build();
@@ -65,7 +65,7 @@ public class OperationBuilderTest {
   public void failOnUseAfterGraphClose() {
     OperationBuilder b = null;
     try (Graph g = new Graph();
-        Tensor<Integer> t = Tensor.create(1, BaseType.Int)) {
+        Tensor<Integer> t = Tensor.create(1, BaseType.INT32)) {
       b = g.opBuilder("Const", "Const").setAttr("dtype", t.dataType()).setAttr("value", t);
     }
     try {
@@ -86,7 +86,7 @@ public class OperationBuilderTest {
     // types that aren't inferred from the input arguments.
     try (Graph g = new Graph()) {
       // dtype, tensor attributes.
-      try (Tensor<Integer> t = Tensor.create(1, BaseType.Int)) {
+      try (Tensor<Integer> t = Tensor.create(1, BaseType.INT32)) {
         g.opBuilder("Const", "DataTypeAndTensor")
             .setAttr("dtype", DataType.INT32)
             .setAttr("value", t)
@@ -156,13 +156,13 @@ public class OperationBuilderTest {
         Session s = new Session(g);
         Tensor<Boolean> yes = Tensor.create(true);
         Tensor<Boolean> no = Tensor.create(false)) {
-      Output<Boolean> placeholder = (Output<Boolean>) TestUtil.placeholder(g, "boolean", DataType.BOOL);
+      Output<Boolean> placeholder = (Output<Boolean>) TestUtil.placeholder(g, "boolean", BaseType.BOOL);
       Operation check =
           g.opBuilder("Assert", "assert")
               .addInput(placeholder)
               .addInputList(new Output[] {placeholder})
               .build();
-      Operation noop = g.opBuilder("NoOp", "noop").addControlInput(check).build();
+      Operation noop = g.opBuilder("NoOp", "noop").addControlInput(check).build(); 
 
       // No problems when the Assert check succeeds
       s.runner().feed(placeholder, yes).addTarget(noop).run();

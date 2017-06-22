@@ -31,6 +31,7 @@ import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
+import static org.tensorflow.BaseType.*;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
@@ -90,19 +91,19 @@ public class LabelImage {
       // Since the graph is being constructed once per execution here, we can use a constant for the
       // input image. If the graph were to be re-used for multiple input images, a placeholder would
       // have been more appropriate.
-      final Output<Byte> input = b.constant("input", imageBytes);
+      final Output<String> input = b.stringConstant("input", imageBytes);
       final Output<Float> output =
           b.div(
               b.sub(
                   b.resizeBilinear(
                       b.expandDims(
-                          b.cast(b.decodeJpeg(input, 3), BaseType.Float),
+                          b.cast(b.decodeJpeg(input, 3), FLOAT),
                           b.constant("make_batch", 0)),
                       b.constant("size", new int[] {H, W})),
                   b.constant("mean", mean)),
               b.constant("scale", scale));
       try (Session s = new Session(g)) {
-        return s.runner().fetch(output.op().name()).run().get(0).expect(BaseType.Float);
+        return s.runner().fetch(output.op().name()).run().get(0).expect(FLOAT);
       }
     }
   }
@@ -111,7 +112,7 @@ public class LabelImage {
     try (Graph g = new Graph()) {
       g.importGraphDef(graphDef);
       try (Session s = new Session(g);
-          Tensor<Float> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(BaseType.Float)) {
+          Tensor<Float> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(FLOAT)) {
         final long[] rshape = result.shape();
         if (result.numDimensions() != 2 || rshape[0] != 1) {
           throw new RuntimeException(
@@ -180,11 +181,11 @@ public class LabelImage {
     }
 
     <T, U> Output<U> cast(Output<T> value, BaseType<U> type) {
-      DataType dtype = Tensor.dataTypeOf(type);
+      DataType dtype = type.dataType();
       return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
     }
 
-    Output<Byte> decodeJpeg(Output<Byte> contents, long channels) {
+    Output<Byte> decodeJpeg(Output<String> contents, long channels) {
       return g.opBuilder("DecodeJpeg", "DecodeJpeg")
           .addInput(contents)
           .setAttr("channels", channels)
@@ -201,8 +202,8 @@ public class LabelImage {
             .output(0);
       }
     }
-    Output<Byte> constant(String name, byte[] value) {
-        try (Tensor<Byte> t = Tensor.create(value, BaseType.UInt8)) {
+    Output<Byte> byteConstant(String name, byte[] value) {
+        try (Tensor<Byte> t = Tensor.create(value, UINT8)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", t.dataType())
               .setAttr("value", t)
@@ -210,8 +211,17 @@ public class LabelImage {
               .output(0);
         }
       }
+    Output<String> stringConstant(String name, byte[] value) {
+      try (Tensor<String> t = Tensor.create(value, STRING)) {
+        return g.opBuilder("Const", name)
+            .setAttr("dtype", t.dataType())
+            .setAttr("value", t)
+            .build()
+            .output(0);
+      }
+    }
     Output<Integer> constant(String name, int value) {
-        try (Tensor<Integer> t = Tensor.create(value, BaseType.Int)) {
+        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -220,7 +230,7 @@ public class LabelImage {
         }
       }
     Output<Integer> constant(String name, int[] value) {
-        try (Tensor<Integer> t = Tensor.create(value, BaseType.Int)) {
+        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -229,7 +239,7 @@ public class LabelImage {
         }
       }
     Output<Float> constant(String name, float value) {
-        try (Tensor<Float> t = Tensor.create(value, BaseType.Float)) {
+        try (Tensor<Float> t = Tensor.create(value, FLOAT)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.FLOAT)
               .setAttr("value", t)
