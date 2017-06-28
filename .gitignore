@@ -16,3 +16,4 @@ __pycache__
 *.swp
 .vscode/
 /temp_classes/
+/bin/
