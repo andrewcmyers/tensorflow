@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.tensorflow.Type;
+import org.tensorflow.shapechecker.qual.scalar;
+import org.tensorflow.shapechecker.qual.shape;
 import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
@@ -91,8 +93,8 @@ public class LabelImage {
       // Since the graph is being constructed once per execution here, we can use a constant for the
       // input image. If the graph were to be re-used for multiple input images, a placeholder would
       // have been more appropriate.
-      final Output<String> input = b.stringConstant("input", imageBytes);
-      final Output<Float> output =
+      final @scalar Output<String> input = b.stringConstant("input", imageBytes);
+      final @shape("224,224") Output<Float> output =
           b.div(
               b.sub(
                   b.resizeBilinear(
@@ -164,11 +166,11 @@ public class LabelImage {
       this.g = g;
     }
 
-    Output<Float> div(Output<Float> x, Output<Float> y) {
+    @shape("x|y") Output<Float> div(Output<Float> x, Output<Float> y) {
       return binaryOp("Div", x, y);
     }
 
-    <T> Output<T> sub(Output<T> x, Output<T> y) {
+    <T> @shape("x|y") Output<T> sub(Output<T> x, Output<T> y) {
       return binaryOp("Sub", x, y);
     }
 
@@ -176,16 +178,16 @@ public class LabelImage {
       return binaryOp3("ResizeBilinear", images, size);
     }
 
-    <T> Output<T> expandDims(Output<T> input, Output<Integer> dim) {
+    <T> @shape("expandDims(input,dim)") Output<T> expandDims(Output<T> input, Output<Integer> dim) {
       return binaryOp3("ExpandDims", input, dim);
     }
 
-    <T, U> Output<U> cast(Output<T> value, Type<U> type) {
+    <T, U> @shape("value") Output<U> cast(Output<T> value, Type<U> type) {
       DataType dtype = type.dataType();
       return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
     }
 
-    Output<Byte> decodeJpeg(Output<String> contents, long channels) {
+    @shape("dim d") Output<Byte> decodeJpeg(Output<String> contents, long channels) {
       return g.opBuilder("DecodeJpeg", "DecodeJpeg")
           .addInput(contents)
           .setAttr("channels", channels)
@@ -193,16 +195,7 @@ public class LabelImage {
           .output(0);
     }
 
-    <T> Output<T> constant(String name, Object value, Type<T> type) {
-      try (Tensor<T> t = Tensor.create(value, type)) {
-        return g.opBuilder("Const", name)
-            .setAttr("dtype", t.dataType())
-            .setAttr("value", t)
-            .build()
-            .output(0);
-      }
-    }
-    Output<Byte> byteConstant(String name, byte[] value) {
+    @shape("value") Output<Byte> byteConstant(String name, byte[] value) {
         try (Tensor<Byte> t = Tensor.create(value, UINT8)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", t.dataType())
@@ -211,7 +204,7 @@ public class LabelImage {
               .output(0);
         }
       }
-    Output<String> stringConstant(String name, byte[] value) {
+    @scalar Output<String> stringConstant(String name, byte[] value) {
       try (Tensor<String> t = Tensor.create(value, STRING)) {
         return g.opBuilder("Const", name)
             .setAttr("dtype", t.dataType())
@@ -220,7 +213,7 @@ public class LabelImage {
             .output(0);
       }
     }
-    Output<Integer> constant(String name, int value) {
+    @scalar Output<Integer> constant(String name, int value) {
         try (Tensor<Integer> t = Tensor.create(value, INT32)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
@@ -229,7 +222,7 @@ public class LabelImage {
               .output(0);
         }
       }
-    Output<Integer> constant(String name, int[] value) {
+    @shape("value") Output<Integer> constant(String name, int[] value) {
         try (Tensor<Integer> t = Tensor.create(value, INT32)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
@@ -238,7 +231,7 @@ public class LabelImage {
               .output(0);
         }
       }
-    Output<Float> constant(String name, float value) {
+    @scalar Output<Float> constant(String name, float value) {
         try (Tensor<Float> t = Tensor.create(value, FLOAT)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.FLOAT)
@@ -248,7 +241,7 @@ public class LabelImage {
         }
       }
 
-    private <T> Output<T> binaryOp(String type, Output<T> in1, Output<T> in2) {
+    private <T> @shape("in1|in2") Output<T> binaryOp(String type, Output<T> in1, Output<T> in2) {
       return g.opBuilder(type, type).addInput(in1).addInput(in2).build().output(0);
     }
     private <T, U, V> Output<T> binaryOp3(String type, Output<U> in1, Output<V> in2) {

@@ -15,7 +15,10 @@ limitations under the License.
 
 package org.tensorflow;
 
+import org.tensorflow.shapechecker.qual.scalar;
+import org.tensorflow.shapechecker.qual.shape;
 import java.lang.reflect.Array;
+
 import java.nio.Buffer;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -119,41 +122,41 @@ public class Tensor<T> implements AutoCloseable {
     return t;
   }
   
-  // XXX where do these methods belong?
-  public static Tensor<Float> create(float data) {
+  // TODO figure out where these methods belong
+  public static @scalar Tensor<Float> create(float data) {
 	  return create(data, Type.FLOAT);
   }
-  public static Tensor<Float> create(float[] data) {
+  public static @shape("data") Tensor<Float> create(float[] data) {
 	  return create(data, Type.FLOAT);
   }
-  public static Tensor<Float> create(float[][] data) {
+  public static @shape("data") Tensor<Float> create(float[][] data) {
 	  return create(data, Type.FLOAT);
   }
-  public static Tensor<Double> create(double[] data) {
+  public static @shape("data") Tensor<Double> create(double[] data) {
 	  return create(data, Type.DOUBLE);
   }
-  public static Tensor<Integer> create(int data) {
+  public static @shape("data") Tensor<Integer> create(int data) {
 	  return create(data, Type.INT32);
   }
-  public static Tensor<Integer> create(int[] data) {
+  public static @shape("data") Tensor<Integer> create(int[] data) {
 	  return create(data, Type.INT32);
   }
-  public static Tensor<Integer> create(int[][] data) {
+  public static @shape("data") Tensor<Integer> create(int[][] data) {
 	  return create(data, Type.INT32);
   }
-  public static Tensor<Integer> create(int[][][] data) {
+  public static @shape("data") Tensor<Integer> create(int[][][] data) {
 	  return create(data, Type.INT32);
   }
-  public static Tensor<Long> create(long data) {
+  public static @shape("data") Tensor<Long> create(long data) {
 	  return create(data, Type.INT64);
   }
-  public static Tensor<Long> create(long[] data) {
+  public static @shape("data") Tensor<Long> create(long[] data) {
 	  return create(data, Type.INT64);
   }
-  public static Tensor<Long> create(long[][] data) {
+  public static @shape("data") Tensor<Long> create(long[][] data) {
 	  return create(data, Type.INT64);
   }
-  public static Tensor<Long> create(long[][][] data) {
+  public static @shape("data") Tensor<Long> create(long[][][] data) {
 	  return create(data, Type.INT64);
   }
   public static Tensor<Byte> create(byte[] data) {
