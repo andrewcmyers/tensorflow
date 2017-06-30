@@ -12,13 +12,19 @@ import java.util.Map;
  */
 public class Types<T> {
 
-	static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
+	private static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
 	/** Convert to the equivalent DataType. */
-	
-	static public DataType dataType(Class<?> c) {
+
+	public static DataType dataType(Class<?> c) {
 		Integer code = typeCodes.get(c);
 		if (code == null) throw new IllegalArgumentException("Class " + c + " is not a Tensorflow type.");
 		return DataType.fromC(code.intValue());
+	}
+	
+	private static final Map<Class<?>, Object> scalars = new HashMap<>();
+	
+	public static Object defaultScalar(Class<?> c) {
+		return scalars.get(c);
 	}
 	
 	/**

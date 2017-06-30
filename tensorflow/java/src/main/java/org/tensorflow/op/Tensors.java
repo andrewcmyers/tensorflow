@@ -1,3 +1,4 @@
+// GENERATED FILE. Edits to this file will be lost -- edit the .tmpl file instead.
 package org.tensorflow.op;
 import static org.tensorflow.Types.*;
 import org.tensorflow.Tensor;

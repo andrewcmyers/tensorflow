@@ -15,6 +15,8 @@ limitations under the License.
 
 package org.tensorflow;
 
+import static org.tensorflow.Types.*;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -23,6 +25,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.tensorflow.op.Tensors;
 
 /** Unit tests for {@link org.tensorflow.OperationBuilder}. */
 @RunWith(JUnit4.class)
@@ -49,7 +52,7 @@ public class OperationBuilderTest {
   @Test
   public void failOnUseAfterBuild() {
     try (Graph g = new Graph();
-        Tensor<Integer> t = Tensor.create(1, Type.INT32)) {
+        Tensor<TFInt32> t = Tensors.create(1)) {
       OperationBuilder b =
           g.opBuilder("Const", "Const").setAttr("dtype", t.dataType()).setAttr("value", t);
       b.build();
@@ -65,7 +68,7 @@ public class OperationBuilderTest {
   public void failOnUseAfterGraphClose() {
     OperationBuilder b = null;
     try (Graph g = new Graph();
-        Tensor<Integer> t = Tensor.create(1, Type.INT32)) {
+        Tensor<TFInt32> t = Tensor.create(1)) {
       b = g.opBuilder("Const", "Const").setAttr("dtype", t.dataType()).setAttr("value", t);
     }
     try {
@@ -86,7 +89,7 @@ public class OperationBuilderTest {
     // types that aren't inferred from the input arguments.
     try (Graph g = new Graph()) {
       // dtype, tensor attributes.
-      try (Tensor<Integer> t = Tensor.create(1, Type.INT32)) {
+      try (Tensor<TFInt32> t = Tensors.create(1)) {
         g.opBuilder("Const", "DataTypeAndTensor")
             .setAttr("dtype", DataType.INT32)
             .setAttr("value", t)
@@ -154,9 +157,9 @@ public class OperationBuilderTest {
   public void addControlInput() {
     try (Graph g = new Graph();
         Session s = new Session(g);
-        Tensor<Boolean> yes = Tensor.create(true);
-        Tensor<Boolean> no = Tensor.create(false)) {
-      Output<Boolean> placeholder = TestUtil.placeholder(g, "boolean", Type.BOOL);
+        Tensor<TFBool> yes = Tensors.create(true);
+        Tensor<TFBool> no = Tensors.create(false)) {
+      Output<TFBool> placeholder = TestUtil.placeholder(g, "boolean", Types.BOOL);
       Operation check =
           g.opBuilder("Assert", "assert")
               .addInput(placeholder)

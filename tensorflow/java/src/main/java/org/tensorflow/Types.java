@@ -1,3 +1,4 @@
+// GENERATED FILE. Edits to this file will be lost -- edit the .tmpl file instead.
 package org.tensorflow;
 
 import java.util.HashMap;
@@ -12,13 +13,19 @@ import java.util.Map;
  */
 public class Types<T> {
 
-	static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
+	private static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
 	/** Convert to the equivalent DataType. */
-	
-	static public DataType dataType(Class<?> c) {
+
+	public static DataType dataType(Class<?> c) {
 		Integer code = typeCodes.get(c);
 		if (code == null) throw new IllegalArgumentException("Class " + c + " is not a Tensorflow type.");
-		return DataType.values()[code];
+		return DataType.fromC(code.intValue());
+	}
+	
+	private static final Map<Class<?>, Object> scalars = new HashMap<>();
+	
+	public static Object defaultScalar(Class<?> c) {
+		return scalars.get(c);
 	}
 	
 	/**
@@ -32,16 +39,19 @@ public class Types<T> {
   public static class TFFloat implements TFType {}
   public static final Class<TFFloat> FLOAT = TFFloat.class;
   { typeCodes.put(FLOAT, 1); }
+  { scalars.put(FLOAT, 0f); }
 
   // 64-bit double precision floating point
   public static class TFDouble implements TFType {}
   public static final Class<TFDouble> DOUBLE = TFDouble.class;
   { typeCodes.put(DOUBLE, 2); }
+  { scalars.put(DOUBLE, 0.0); }
 
   // 32-bit signed integer
   public static class TFInt32 implements TFType {}
   public static final Class<TFInt32> INT32 = TFInt32.class;
   { typeCodes.put(INT32, 3); }
+  { scalars.put(INT32, 0); }
 
   // 8-bit unsigned integer
   public static class TFUInt8 implements TFType {}
@@ -52,11 +62,13 @@ public class Types<T> {
   public static class TFInt16 implements TFType {}
   public static final Class<TFInt16> INT16 = TFInt16.class;
   { typeCodes.put(INT16, 5); }
+  { scalars.put(INT16, (short)0); }
 
   // 8-bit signed integer
   public static class TFInt8 implements TFType {}
   public static final Class<TFInt8> INT8 = TFInt8.class;
   { typeCodes.put(INT8, 6); }
+  { scalars.put(INT8, (byte)0); }
 
   // a sequence of bytes
   public static class TFString implements TFType {}
@@ -72,11 +84,13 @@ public class Types<T> {
   public static class TFInt64 implements TFType {}
   public static final Class<TFInt64> INT64 = TFInt64.class;
   { typeCodes.put(INT64, 9); }
+  { scalars.put(INT64, 0L); }
 
   // Boolean
   public static class TFBool implements TFType {}
   public static final Class<TFBool> BOOL = TFBool.class;
   { typeCodes.put(BOOL, 10); }
+  { scalars.put(BOOL, false); }
 
   // quantized int8
   public static class TFQInt8 implements TFType {}
