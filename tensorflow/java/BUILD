@@ -14,6 +14,7 @@ java_library(
         ":java_sources",
     ],
     data = [":libtensorflow_jni"],
+    deps = [ "create_Types" ],
     javacopts = JAVACOPTS,
     visibility = ["//visibility:public"],
 )
@@ -240,3 +241,13 @@ filegroup(
     ),
     visibility = ["//tensorflow:__subpackages__"],
 )
+
+genrule(
+    name = "create_Types",
+    srcs = ["src/main/java/org/tensorflow/Types.tmpl",
+            "src/main/tmpl/tftypes.csv",
+            "src/main/tmpl/tftypes.pl"],
+    outs = ["src/main/java/org/tensorflow/Types.java"],
+    cmd = "perl src/main/tmpl/tftypes.pl -t < src/main/java/org/tensorflow/Types.tmpl > $@"
+)
+
