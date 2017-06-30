@@ -27,17 +27,19 @@ while (<TYPEDESC>) {
     my $line = $_;
     if ($line =~ m/^TF type/) { next }
     $line =~ s/\r$//;
-    (my $name, my $jtype, my $jbox, my $creat, my $desc) = split /,/, $line, 5;
+    (my $name, my $jtype, my $jbox, my $creat, my $default, my $desc) = split /,/, $line, 6;
     $desc =~ s/^ *//g;
     $desc =~ s/ *$//g;
 
-    push @info, [$name, $jtype, $jbox, $creat, $desc];
+    push @info, [$name, $jtype, $jbox, $creat, $default, $desc];
     $jtypecount{$jtype}++;
 }
 
+print "// GENERATED FILE. Edits to this file will be lost -- edit the .tmpl file instead.\n";
+
 for (my $i = 1; $i <= $#info; $i++) {
 
-    (my $name, my $jtype, my $jbox, my $creat, my $desc) = @{$info[$i]};
+    (my $name, my $jtype, my $jbox, my $creat, my $default, my $desc) = @{$info[$i]};
     my $tfname = "TF".$name;
     my $ucname = uc $name;
 
@@ -50,8 +52,13 @@ for (my $i = 1; $i <= $#info; $i++) {
 "  public static class $tfname implements TFType {}
   public static final Class<$tfname> $ucname = $tfname.class;
   { typeCodes.put($ucname, $i); }
-
 ";
+        if ($default ne '') {
+            $output .=
+"  { scalars.put($ucname, $default); }
+";
+        }
+        $output .= "\n";
     } elsif ($option eq '-d') {
     } elsif ($option eq '-c') { # creators
       if ($jtype ne '' && $creat eq 'y') {

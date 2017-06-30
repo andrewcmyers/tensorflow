@@ -30,6 +30,9 @@ import java.nio.LongBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.tensorflow.op.Tensors;
+
+import static org.tensorflow.Types.*;
 
 /** Unit tests for {@link org.tensorflow.Tensor}. */
 @RunWith(JUnit4.class)
@@ -47,7 +50,7 @@ public class TensorTest {
     byte[] strings = "test".getBytes(UTF_8);
     long[] strings_shape = {};
     byte[] strings_; // raw TF_STRING
-    try (Tensor<String> t = Tensor.create(strings, Type.STRING)) {
+    try (Tensor<TFString> t = Tensor.create(strings, DataType.STRING)) {
       ByteBuffer to = ByteBuffer.allocate(t.numBytes());
       t.writeTo(to);
       strings_ = to.array();
@@ -55,7 +58,7 @@ public class TensorTest {
 
     // validate creating a tensor using a byte buffer
     {
-      try (Tensor<Boolean> t = Tensor.create(Type.BOOL, bools_shape, ByteBuffer.wrap(bools_))) {
+      try (Tensor<TFBool> t = Tensor.create(Types.BOOL, bools_shape, ByteBuffer.wrap(bools_))) {
         boolean[] actual = t.copyTo(new boolean[bools_.length]);
         for (int i = 0; i < bools.length; ++i) {
           assertEquals("" + i, bools[i], actual[i]);
@@ -63,7 +66,7 @@ public class TensorTest {
       }
 
       // note: the buffer is expected to contain raw TF_STRING (as per C API)
-      try (Tensor<String> t = Tensor.create(Type.STRING, strings_shape, ByteBuffer.wrap(strings_))) {
+      try (Tensor<TFString> t = Tensor.create(STRING, strings_shape, ByteBuffer.wrap(strings_))) {
         assertArrayEquals(strings, t.bytesValue());
       }
     }
@@ -72,15 +75,15 @@ public class TensorTest {
     {
       ByteBuffer buf = ByteBuffer.allocateDirect(8 * doubles.length).order(ByteOrder.nativeOrder());
       buf.asDoubleBuffer().put(doubles);
-      try (Tensor<Double> t = Tensor.create(Type.DOUBLE, doubles_shape, buf)) {
+      try (Tensor<TFDouble> t = Tensor.create(DOUBLE, doubles_shape, buf)) {
         double[] actual = new double[doubles.length];
         assertArrayEquals(doubles, t.copyTo(actual), EPSILON);
       }
     }
 
     // validate shape checking
-    try (Tensor<Boolean> t =
-        Tensor.create(Type.BOOL, new long[bools_.length * 2], ByteBuffer.wrap(bools_))) {
+    try (Tensor<TFBool> t =
+        Tensor.create(BOOL, new long[bools_.length * 2], ByteBuffer.wrap(bools_))) {
       fail("should have failed on incompatible buffer");
     } catch (IllegalArgumentException e) {
       // expected
@@ -166,11 +169,11 @@ public class TensorTest {
     long[] longs = {1L, 2L, 3L};
     boolean[] bools = {true, false, true};
 
-    try (Tensor<Integer> tints = Tensor.create(ints, Type.INT32);
-        Tensor<Float> tfloats = Tensor.create(floats, Type.FLOAT);
-        Tensor<Double> tdoubles = Tensor.create(doubles, Type.DOUBLE);
-        Tensor<Long> tlongs = Tensor.create(longs, Type.INT64);
-        Tensor<Boolean> tbools = Tensor.create(bools, Type.BOOL)) {
+    try (Tensor<TFInt32> tints = Tensors.create(ints);
+        Tensor<TFFloat> tfloats = Tensor.create(floats, FLOAT);
+        Tensor<TFDouble> tdoubles = Tensor.create(doubles, DOUBLE);
+        Tensor<TFInt64> tlongs = Tensor.create(longs, INT64);
+        Tensor<TFBool> tbools = Tensor.create(bools, BOOL)) {
 
       // validate that any datatype is readable with ByteBuffer (content, position)
       {
@@ -293,21 +296,21 @@ public class TensorTest {
 
   @Test
   public void scalars() {
-    try (Tensor<Float> t = Tensor.create(2.718f, Type.FLOAT)) {
+    try (Tensor<TFFloat> t = Tensor.create(2.718f, FLOAT)) {
       assertEquals(DataType.FLOAT, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
       assertEquals(2.718f, t.floatValue(), EPSILON_F);
     }
 
-    try (Tensor<Double> t = Tensor.create(3.1415, Type.DOUBLE)) {
+    try (Tensor<TFDouble> t = Tensors.create(3.1415)) {
       assertEquals(DataType.DOUBLE, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
       assertEquals(3.1415, t.doubleValue(), EPSILON);
     }
 
-    try (Tensor<Integer> t = Tensor.create(-33)) {
+    try (Tensor<TFInt32> t = Tensors.create(-33)) {
       assertEquals(DataType.INT32, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
@@ -329,7 +332,7 @@ public class TensorTest {
     }
 
     final byte[] bytes = {1, 2, 3, 4};
-    try (Tensor<String> t = Tensor.create(bytes, Type.STRING)) {
+    try (Tensor<TFString> t = Tensor.create(bytes)) {
       assertEquals(DataType.STRING, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
@@ -376,7 +379,7 @@ public class TensorTest {
       {{{false, false, true, true}, {false, true, false, false}}},
       {{{false, true, false, true}, {false, true, true, false}}},
     };
-    try (Tensor<Boolean> t = Tensor.create(fourD, Type.BOOL)) {
+    try (Tensor<TFBool> t = Tensor.create(fourD)) {
       assertEquals(DataType.BOOL, t.dataType());
       assertEquals(4, t.numDimensions());
       assertArrayEquals(new long[] {3, 1, 2, 4}, t.shape());
@@ -441,7 +444,7 @@ public class TensorTest {
 
   @Test
   public void failOnArbitraryObject() {
-    try (Tensor<Integer> t = Tensor.create(new Object(), Type.INT32)) {
+    try (Tensor<TFInt32> t = Tensor.create(new Object())) {
       fail("should fail on creating a Tensor with a Java object that has no equivalent DataType");
     } catch (IllegalArgumentException e) {
       // The expected exception.
