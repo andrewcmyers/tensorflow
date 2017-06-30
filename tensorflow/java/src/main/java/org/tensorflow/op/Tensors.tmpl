@@ -1,0 +1,17 @@
+package org.tensorflow.op;
+import static org.tensorflow.Types.*;
+import org.tensorflow.Tensor;
+import org.tensorflow.Types;
+
+/**
+ * Convenience methods for creating Tensors of popular types, with type checking.
+ */
+public class Tensors {
+  public static Tensor<TFString> create(byte[] data) {
+    return Tensor.create(data);
+  }
+  public static Tensor<TFString> create(String data) {
+    return Tensor.create(data);
+  }
+  @TYPEINFO@}
+

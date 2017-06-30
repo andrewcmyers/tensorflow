@@ -24,57 +24,57 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import org.tensorflow.Type;
 import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
-import static org.tensorflow.Type.*;
+import static org.tensorflow.Types.*;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
-  private static void printUsage(PrintStream s) {
-    final String url =
-        "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip";
-    s.println(
-        "Java program that uses a pre-trained Inception model (http://arxiv.org/abs/1512.00567)");
-    s.println("to label JPEG images.");
-    s.println("TensorFlow version: " + TensorFlow.version());
-    s.println();
-    s.println("Usage: label_image <model dir> <image file>");
-    s.println();
-    s.println("Where:");
-    s.println("<model dir> is a directory containing the unzipped contents of the inception model");
-    s.println("            (from " + url + ")");
-    s.println("<image file> is the path to a JPEG image file");
-  }
-
-  public static void main(String[] args) {
-    if (args.length != 2) {
-      printUsage(System.err);
-      System.exit(1);
+    private static void printUsage(PrintStream s) {
+        final String url = "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip";
+        s.println(
+                "Java program that uses a pre-trained Inception model (http://arxiv.org/abs/1512.00567)");
+        s.println("to label JPEG images.");
+        s.println("TensorFlow version: " + TensorFlow.version());
+        s.println();
+        s.println("Usage: label_image <model dir> <image file>");
+        s.println();
+        s.println("Where:");
+        s.println(
+                "<model dir> is a directory containing the unzipped contents of the inception model");
+        s.println("            (from " + url + ")");
+        s.println("<image file> is the path to a JPEG image file");
     }
-    String modelDir = args[0];
-    String imageFile = args[1];
 
-    byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
-    List<String> labels =
-        readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
-    byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            printUsage(System.err);
+            System.exit(1);
+        }
+        String modelDir = args[0];
+        String imageFile = args[1];
 
-    try (Tensor<Float> image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
-      float[] labelProbabilities = executeInceptionGraph(graphDef, image);
-      int bestLabelIdx = maxIndex(labelProbabilities);
-      System.out.println(
-          String.format(
-              "BEST MATCH: %s (%.2f%% likely)",
-              labels.get(bestLabelIdx), labelProbabilities[bestLabelIdx] * 100f));
+        byte[] graphDef = readAllBytesOrExit(
+                Paths.get(modelDir, "tensorflow_inception_graph.pb"));
+        List<String> labels = readAllLinesOrExit(
+                Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
+        byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
+
+        try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(
+                imageBytes)) {
+            float[] labelProbabilities = executeInceptionGraph(graphDef, image);
+            int bestLabelIdx = maxIndex(labelProbabilities);
+            System.out.println(String.format("BEST MATCH: %s (%.2f%% likely)",
+                    labels.get(bestLabelIdx),
+                    labelProbabilities[bestLabelIdx] * 100f));
+        }
     }
-  }
 
-  private static Tensor<Float> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
+  private static Tensor<TFFloat> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
     try (Graph g = new Graph()) {
       GraphBuilder b = new GraphBuilder(g);
       // Some constants specific to the pre-trained model at:
@@ -91,8 +91,8 @@ public class LabelImage {
       // Since the graph is being constructed once per execution here, we can use a constant for the
       // input image. If the graph were to be re-used for multiple input images, a placeholder would
       // have been more appropriate.
-      final Output<String> input = b.stringConstant("input", imageBytes);
-      final Output<Float> output =
+      final Output<TFString> input = b.stringConstant("input", imageBytes);
+      final Output<TFFloat> output =
           b.div(
               b.sub(
                   b.resizeBilinear(
@@ -108,11 +108,11 @@ public class LabelImage {
     }
   }
 
-  private static float[] executeInceptionGraph(byte[] graphDef, Tensor<Float> image) {
+  private static float[] executeInceptionGraph(byte[] graphDef, Tensor<TFFloat> image) {
     try (Graph g = new Graph()) {
       g.importGraphDef(graphDef);
       try (Session s = new Session(g);
-          Tensor<Float> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(FLOAT)) {
+          Tensor<TFFloat> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(FLOAT)) {
         final long[] rshape = result.shape();
         if (result.numDimensions() != 2 || rshape[0] != 1) {
           throw new RuntimeException(
@@ -164,7 +164,7 @@ public class LabelImage {
       this.g = g;
     }
 
-    Output<Float> div(Output<Float> x, Output<Float> y) {
+    Output<TFFloat> div(Output<TFFloat> x, Output<TFFloat> y) {
       return binaryOp("Div", x, y);
     }
 
@@ -172,20 +172,20 @@ public class LabelImage {
       return binaryOp("Sub", x, y);
     }
 
-    <T> Output<Float> resizeBilinear(Output<T> images, Output<Integer> size) {
+    <T> Output<TFFloat> resizeBilinear(Output<T> images, Output<TFInt32> size) {
       return binaryOp3("ResizeBilinear", images, size);
     }
 
-    <T> Output<T> expandDims(Output<T> input, Output<Integer> dim) {
+    <T> Output<T> expandDims(Output<T> input, Output<TFInt32> dim) {
       return binaryOp3("ExpandDims", input, dim);
     }
 
-    <T, U> Output<U> cast(Output<T> value, Type<U> type) {
-      DataType dtype = type.dataType();
+    <T, U> Output<U> cast(Output<T> value, Class<U> type) {
+      DataType dtype = dataType(type);
       return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
     }
 
-    Output<Byte> decodeJpeg(Output<String> contents, long channels) {
+    Output<TFUInt8> decodeJpeg(Output<TFString> contents, long channels) {
       return g.opBuilder("DecodeJpeg", "DecodeJpeg")
           .addInput(contents)
           .setAttr("channels", channels)
@@ -193,7 +193,7 @@ public class LabelImage {
           .output(0);
     }
 
-    <T> Output<T> constant(String name, Object value, Type<T> type) {
+    <T> Output<T> constant(String name, Object value, Class<T> type) {
       try (Tensor<T> t = Tensor.create(value, type)) {
         return g.opBuilder("Const", name)
             .setAttr("dtype", t.dataType())
@@ -202,17 +202,9 @@ public class LabelImage {
             .output(0);
       }
     }
-    Output<Byte> byteConstant(String name, byte[] value) {
-        try (Tensor<Byte> t = Tensor.create(value, UINT8)) {
-          return g.opBuilder("Const", name)
-              .setAttr("dtype", t.dataType())
-              .setAttr("value", t)
-              .build()
-              .output(0);
-        }
-      }
-    Output<String> stringConstant(String name, byte[] value) {
-      try (Tensor<String> t = Tensor.create(value, STRING)) {
+  
+    Output<TFString> stringConstant(String name, byte[] value) {
+      try (Tensor<TFString> t = Tensor.create(value, STRING)) {
         return g.opBuilder("Const", name)
             .setAttr("dtype", t.dataType())
             .setAttr("value", t)
@@ -220,8 +212,8 @@ public class LabelImage {
             .output(0);
       }
     }
-    Output<Integer> constant(String name, int value) {
-        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
+    Output<TFInt32> constant(String name, int value) {
+        try (Tensor<TFInt32> t = Tensor.create(value, INT32)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -229,8 +221,8 @@ public class LabelImage {
               .output(0);
         }
       }
-    Output<Integer> constant(String name, int[] value) {
-        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
+    Output<TFInt32> constant(String name, int[] value) {
+        try (Tensor<TFInt32> t = Tensor.create(value, INT32)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -238,8 +230,8 @@ public class LabelImage {
               .output(0);
         }
       }
-    Output<Float> constant(String name, float value) {
-        try (Tensor<Float> t = Tensor.create(value, FLOAT)) {
+    Output<TFFloat> constant(String name, float value) {
+        try (Tensor<TFFloat> t = Tensor.create(value, FLOAT)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.FLOAT)
               .setAttr("value", t)
