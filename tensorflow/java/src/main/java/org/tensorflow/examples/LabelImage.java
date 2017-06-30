@@ -29,7 +29,7 @@ import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
-import static org.tensorflow.Type.*;
+import static org.tensorflow.Types.*;
 
 /**
  * Sample use of the TensorFlow Java API to label images using a pre-trained
@@ -66,7 +66,7 @@ public class LabelImage {
                 Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
         byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
 
-        try (Tensor<Float> image = constructAndExecuteGraphToNormalizeImage(
+        try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(
                 imageBytes)) {
             float[] labelProbabilities = executeInceptionGraph(graphDef, image);
             int bestLabelIdx = maxIndex(labelProbabilities);
@@ -76,7 +76,7 @@ public class LabelImage {
         }
     }
 
-    private static Tensor<Float> constructAndExecuteGraphToNormalizeImage(
+    private static Tensor<TFFloat> constructAndExecuteGraphToNormalizeImage(
             byte[] imageBytes) {
         try (Graph g = new Graph()) {
 
@@ -98,10 +98,9 @@ public class LabelImage {
             // images, a placeholder would
             // have been more appropriate.
 
-            Output<Float> output = new GraphBuilder(g) {
-                Output<Float> imageIdentifier(String inp) {
-                    final Output<String> input = stringConstant(imageBytes);
-
+            Output<TFFloat> output = new GraphBuilder(g) {
+                Output<TFFloat> imageIdentifier() {
+                    final Output<TFString> input = stringConstant(imageBytes);
                     return div(
                             sub(resizeBilinear(
                                     withScope("decode",
@@ -112,21 +111,21 @@ public class LabelImage {
                                     constant(mean)),
                             constant(scale));
                 }
-            }.imageIdentifier("input");
+            }.imageIdentifier();
 
             try (Session s = new Session(g)) {
-                return s.runner().fetch(output.op().name()).run().get(0)
+                return s.runner().fetch(output).run().get(0)
                         .expect(FLOAT);
             }
         }
     }
 
     private static float[] executeInceptionGraph(byte[] graphDef,
-            Tensor<Float> image) {
+            Tensor<TFFloat> image) {
         try (Graph g = new Graph()) {
             g.importGraphDef(graphDef);
             try (Session s = new Session(g);
-                    Tensor<Float> result = s.runner().feed("input", image)
+                    Tensor<TFFloat> result = s.runner().feed("input", image)
                             .fetch("output").run().get(0).expect(FLOAT)) {
                 final long[] rshape = result.shape();
                 if (result.numDimensions() != 2 || rshape[0] != 1) {

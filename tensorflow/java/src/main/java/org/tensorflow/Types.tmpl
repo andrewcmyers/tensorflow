@@ -1,0 +1,32 @@
+package org.tensorflow;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * A Type<T> keeps track of the base data type of a tensor in a way that allows the Java type system
+ * to use it for type checking. There is a separate Type<T> object for each of the possible data types,
+ * corresponding to the cases of the enum DataType.
+ * 
+ * @param <T>
+ */
+public class Types<T> {
+
+	static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
+	/** Convert to the equivalent DataType. */
+	
+	static public DataType dataType(Class<?> c) {
+		Integer code = typeCodes.get(c);
+		if (code == null) throw new IllegalArgumentException("Class " + c + " is not a Tensorflow type.");
+		return DataType.fromC(code.intValue());
+	}
+	
+	/**
+	 * A marker interface for classes representing Tensorflow types.
+	 */
+	interface TFType {}
+	
+	// The following classes represent Tensorflow types when used as type parameters to
+	// types such as Tensor and Output.
+@TYPEINFO@
+}

@@ -1,0 +1,21 @@
+TF type,Java type,Java boxed type,Creator?,Description
+Float,float,Float,y,32-bit single precision floating point
+Double,double,Double,y,64-bit double precision floating point
+Int32,int,Integer,y,32-bit signed integer
+UInt8,byte,Byte,n,8-bit unsigned integer
+Int16,short,Short,y,16-bit signed integer
+Int8,byte,Byte,n,8-bit signed integer
+String,byte,Byte,n,a sequence of bytes
+Complex64,,,n,single-precision complex
+Int64,long,Long,y,64-bit signed integer
+Bool,boolean,Boolean,y,Boolean
+QInt8,byte,Byte,n,quantized int8
+QUInt8,byte,Byte,n,quantized uint8
+QInt32,int,Integer,n,quantized int32
+BFloat16,short,Short,n,float32 truncated to 16 bits. Only for cast ops.
+QInt16,short,Short,n,quantized int16
+QUInt16,short,Short,n,quantized uint16
+UInt16,short,Short,n,16-bit unsigned integer
+Complex128,,,n,double-precision complex
+Half,,,n
+Resource,Object,Object,n

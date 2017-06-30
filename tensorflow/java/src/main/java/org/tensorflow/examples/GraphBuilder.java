@@ -1,9 +1,6 @@
 package org.tensorflow.examples;
 
-import static org.tensorflow.Type.FLOAT;
-import static org.tensorflow.Type.INT32;
-import static org.tensorflow.Type.STRING;
-import static org.tensorflow.Type.UINT8;
+import static org.tensorflow.Types.*;
 
 import java.util.function.Supplier;
 
@@ -11,8 +8,9 @@ import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Tensor;
-import org.tensorflow.Type;
+import org.tensorflow.Types;
 import org.tensorflow.op.Scope;
+import org.tensorflow.op.Tensors;
 
 //In the fullness of time, equivalents of the methods of this class should be auto-generated from
 // the OpDefs linked into libtensorflow_jni.so. That would match what is done in other languages
@@ -32,7 +30,7 @@ public class GraphBuilder {
         return r;
     }
 
-    Output<Float> div(Output<Float> x, Output<Float> y) {
+    Output<TFFloat> div(Output<TFFloat> x, Output<TFFloat> y) {
         return binaryOp("Div", x, y);
     }
 
@@ -40,64 +38,57 @@ public class GraphBuilder {
         return binaryOp("Sub", x, y);
     }
 
-    <T> Output<Float> resizeBilinear(Output<T> images, Output<Integer> size) {
+    <T> Output<TFFloat> resizeBilinear(Output<T> images, Output<TFInt32> size) {
         return binaryOp3("ResizeBilinear", images, size);
     }
 
-    <T> Output<T> expandDims(Output<T> input, Output<Integer> dim) {
+    <T> Output<T> expandDims(Output<T> input, Output<TFInt32> dim) {
         return binaryOp3("ExpandDims", input, dim);
     }
 
-    <T, U> Output<U> cast(Output<T> value, Type<U> type) {
-        DataType dtype = type.dataType();
+    <T, U> Output<U> cast(Output<T> value, Class<U> type) {
+        DataType dtype = Types.dataType(type);
         return graph.opBuilder("Cast", "Cast").addInput(value)
                 .setAttr("DstT", dtype).build().output(0);
     }
 
-    Output<Byte> decodeJpeg(Output<String> contents, long channels) {
+    Output<TFUInt8> decodeJpeg(Output<TFString> contents, long channels) {
         return graph.opBuilder("DecodeJpeg", "DecodeJpeg").addInput(contents)
                 .setAttr("channels", channels).build().output(0);
     }
 
-    <T> Output<T> constant(Object value, Type<T> type) {
+    <T> Output<T> constant(Object value, Class<T> type) {
         try (Tensor<T> t = Tensor.create(value, type)) {
             return graph.opBuilder("Const", scope.makeOpName("constant")).setAttr("dtype", t.dataType())
                     .setAttr("value", t).build().output(0);
         }
     }
 
-    Output<Byte> byteConstant(byte[] value) {
-        try (Tensor<Byte> t = Tensor.create(value, UINT8)) {
+    Output<TFString> stringConstant(byte[] value) {
+        try (Tensor<TFString> t = Tensors.create(value)) {
             return graph.opBuilder("Const", scope.makeOpName("constant")).setAttr("dtype", t.dataType())
                     .setAttr("value", t).build().output(0);
         }
     }
 
-    Output<String> stringConstant(byte[] value) {
-        try (Tensor<String> t = Tensor.create(value, STRING)) {
-            return graph.opBuilder("Const", scope.makeOpName("constant")).setAttr("dtype", t.dataType())
-                    .setAttr("value", t).build().output(0);
-        }
-    }
-
-    Output<Integer> constant(int value) {
-        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
+    Output<TFInt32> constant(int value) {
+        try (Tensor<TFInt32> t = Tensor.create(value, INT32)) {
             return graph.opBuilder("Const", scope.makeOpName("constant"))
                     .setAttr("dtype", DataType.INT32).setAttr("value", t)
                     .build().output(0);
         }
     }
 
-    Output<Integer> constant(int[] value) {
-        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
+    Output<TFInt32> constant(int[] value) {
+        try (Tensor<TFInt32> t = Tensor.create(value, INT32)) {
             return graph.opBuilder("Const", scope.makeOpName("constant"))
                     .setAttr("dtype", DataType.INT32).setAttr("value", t)
                     .build().output(0);
         }
     }
 
-    Output<Float> constant(float value) {
-        try (Tensor<Float> t = Tensor.create(value, FLOAT)) {
+    Output<TFFloat> constant(float value) {
+        try (Tensor<TFFloat> t = Tensor.create(value, FLOAT)) {
             return graph.opBuilder("Const", scope.makeOpName("constant"))
                     .setAttr("dtype", DataType.FLOAT).setAttr("value", t)
                     .build().output(0);
