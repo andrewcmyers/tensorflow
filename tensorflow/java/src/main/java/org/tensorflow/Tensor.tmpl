@@ -222,10 +222,10 @@ public final class Tensor<T> implements AutoCloseable {
     if (dtype != DataType.STRING) {
       int elemBytes = elemByteSize(dtype);
       if (data.remaining() % elemBytes != 0) {
-    	  throw new IllegalArgumentException(
-    				  String.format(
-    						  "ByteBuffer with %d bytes is not compatible with a %s Tensor (%d bytes/element)",
-    						  data.remaining(), dtype.toString(), elemBytes));
+        throw new IllegalArgumentException(
+            String.format(
+                "ByteBuffer with %d bytes is not compatible with a %s Tensor (%d bytes/element)",
+                data.remaining(), dtype.toString(), elemBytes));
       }
       nremaining = data.remaining() / elemBytes;
     } else {
@@ -277,7 +277,8 @@ public final class Tensor<T> implements AutoCloseable {
    *
    * <p>The Tensor object is no longer usable after {@code close} returns.
    */
-  @Override public void close() {
+  @Override
+  public void close() {
     if (nativeHandle != 0) {
       delete(nativeHandle);
       nativeHandle = 0;
@@ -489,6 +490,12 @@ public final class Tensor<T> implements AutoCloseable {
     dst.put(src);
   }
 
+  /** Returns a string describing the type and shape of the Tensor. */
+  @Override
+  public String toString() {
+    return String.format("%s tensor with shape %s", dtype.toString(), Arrays.toString(shape()));
+  }
+
   /**
    * Create a Tensor object from a handle to the C TF_Tensor object.
    *
@@ -556,7 +563,7 @@ public final class Tensor<T> implements AutoCloseable {
     throw new IllegalArgumentException("DataType " + dataType + " is not supported yet");
   }
 
-  public static DataType dataTypeOf(Object o) {
+  private static DataType dataTypeOf(Object o) {
     if (o.getClass().isArray()) {
       if (Array.getLength(o) == 0) {
         throw new IllegalArgumentException("cannot create Tensors with a 0 dimension");
@@ -635,7 +642,6 @@ public final class Tensor<T> implements AutoCloseable {
       }
     }
   }
-  
 
   private static native long allocate(int dtype, long[] shape, long byteSize);
 
