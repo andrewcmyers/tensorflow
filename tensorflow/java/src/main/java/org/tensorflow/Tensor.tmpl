@@ -44,7 +44,7 @@ import java.util.Arrays;
  * }
  * }</pre>
  */
-public class Tensor<T> implements AutoCloseable {
+public final class Tensor<T> implements AutoCloseable {
 
   /**
    * Create a Tensor from a Java object.
@@ -71,7 +71,7 @@ public class Tensor<T> implements AutoCloseable {
    * int[][] twoD = new int[2][];
    * twoD[0] = new int[1];
    * twoD[1] = new int[2];
-   * Tensor<TFInt32> x = Tensor.create(twoD, BaseType.INT32);
+   * Tensor<TFInt32> x = Tensor.create(twoD, INT32);
    * }</pre>
    *
    * If the underlying object is a byte array, it can represent either a string or a uint8 tensor. The
@@ -450,11 +450,11 @@ public class Tensor<T> implements AutoCloseable {
    * @throws IllegalArgumentException If the tensor datatype is not {@link DataType#DOUBLE}
    */
   public void writeTo(DoubleBuffer dst) {
-	  if (dtype != DataType.DOUBLE) {
-		  throw incompatibleBuffer(dst, dtype);
-	  }
-	  ByteBuffer src = buffer();
-	  dst.put(src.asDoubleBuffer());
+    if (dtype != DataType.DOUBLE) {
+      throw incompatibleBuffer(dst, dtype);
+    }
+    ByteBuffer src = buffer();
+    dst.put(src.asDoubleBuffer());
   }
 
   /**
@@ -484,10 +484,10 @@ public class Tensor<T> implements AutoCloseable {
    * @throws BufferOverflowException If there is insufficient space in the given buffer for the data
    *     in this tensor
    */
-   public void writeTo(ByteBuffer dst) {
-	  ByteBuffer src = buffer();
-	  dst.put(src);
-   }
+  public void writeTo(ByteBuffer dst) {
+    ByteBuffer src = buffer();
+    dst.put(src);
+  }
 
   /**
    * Create a Tensor object from a handle to the C TF_Tensor object.
@@ -505,7 +505,11 @@ public class Tensor<T> implements AutoCloseable {
     return nativeHandle;
   }
 
-  Tensor(DataType t) {
+  private long nativeHandle;
+  private DataType dtype;
+  private long[] shapeCopy = null;
+
+  private Tensor(DataType t) {
 	  dtype = t;
   }
   
@@ -632,9 +636,6 @@ public class Tensor<T> implements AutoCloseable {
     }
   }
   
-  long nativeHandle;
-  DataType dtype; // XXX could replace with: BaseType<T> type;
-  long[] shapeCopy = null;
 
   private static native long allocate(int dtype, long[] shape, long byteSize);
 
