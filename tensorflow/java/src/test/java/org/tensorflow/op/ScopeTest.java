@@ -197,7 +197,7 @@ public class ScopeTest {
           .setAttr("dtype", value.dataType())
           .setAttr("value", value)
           .build()
-          .output(0));
+          .<T>output(0));
     }
     static <T> Const<T> create(Scope s, Object v, Class<T> type) {
       try (Tensor<T> value = Tensor.create(v, type)) {
@@ -207,7 +207,7 @@ public class ScopeTest {
                 .setAttr("dtype", value.dataType())
                 .setAttr("value", value)
                 .build()
-                .output(0));
+                .<T>output(0));
       }
     }
 
@@ -230,7 +230,7 @@ public class ScopeTest {
               .addInput(input)
               .addInput(reductionIndices)
               .build()
-              .output(0));
+              .<T>output(0));
     }
 
     Mean(Output<T> o) {
@@ -252,7 +252,7 @@ public class ScopeTest {
               .addInput(x)
               .addInput(y)
               .build()
-              .output(0));
+              .<T>output(0));
     }
 
     SquaredDifference(Output<T> o) {

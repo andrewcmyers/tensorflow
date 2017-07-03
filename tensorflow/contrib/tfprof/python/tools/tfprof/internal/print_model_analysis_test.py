@@ -33,7 +33,7 @@ from tensorflow.tools.tfprof import tfprof_output_pb2
 
 # pylint: disable=g-bad-import-order
 # XXX: this depends on pywrap_tensorflow and must come later
-from tensorflow.contrib.tfprof.python.tools.tfprof.internal import pywrap_tensorflow_print_model_analysis_lib as print_mdl
+from tensorflow.python import pywrap_tensorflow as print_mdl
 
 # pylint: disable=bad-whitespace
 # pylint: disable=bad-continuation
@@ -77,6 +77,7 @@ class PrintModelAnalysisTest(test.TestCase):
     opts.min_params = TEST_OPTIONS['min_params']
     opts.min_float_ops = TEST_OPTIONS['min_float_ops']
     opts.order_by = TEST_OPTIONS['order_by']
+    opts.step = -1
     for p in TEST_OPTIONS['account_type_regexes']:
       opts.account_type_regexes.append(p)
     for p in TEST_OPTIONS['start_name_regexes']:
@@ -153,6 +154,13 @@ class PrintModelAnalysisTest(test.TestCase):
                 }
               }
             }
+            accelerator_exec_micros: 0
+            cpu_exec_micros: 0
+            total_accelerator_exec_micros: 0
+            total_cpu_exec_micros: 0
+            run_count: 0
+            total_run_count: 0
+            total_definition_count: 1
           }
           children {
             name: "DW"
@@ -205,6 +213,13 @@ class PrintModelAnalysisTest(test.TestCase):
                   }
                 }
               }
+              accelerator_exec_micros: 0
+              cpu_exec_micros: 0
+              total_accelerator_exec_micros: 0
+              total_cpu_exec_micros: 0
+              run_count: 0
+              total_run_count: 0
+              total_definition_count: 1
             }
             children {
               name: "DW/Initializer"
@@ -237,6 +252,13 @@ class PrintModelAnalysisTest(test.TestCase):
                       }
                     }
                   }
+                  accelerator_exec_micros: 0
+                  cpu_exec_micros: 0
+                  total_accelerator_exec_micros: 0
+                  total_cpu_exec_micros: 0
+                  run_count: 0
+                  total_run_count: 0
+                  total_definition_count: 1
                 }
                 children {
                   name: "DW/Initializer/random_normal/mean"
@@ -247,6 +269,13 @@ class PrintModelAnalysisTest(test.TestCase):
                   total_parameters: 0
                   float_ops: 0
                   total_float_ops: 0
+                  accelerator_exec_micros: 0
+                  cpu_exec_micros: 0
+                  total_accelerator_exec_micros: 0
+                  total_cpu_exec_micros: 0
+                  run_count: 0
+                  total_run_count: 0
+                  total_definition_count: 1
                 }
                 children {
                   name: "DW/Initializer/random_normal/mul"
@@ -282,6 +311,13 @@ class PrintModelAnalysisTest(test.TestCase):
                       }
                     }
                   }
+                  accelerator_exec_micros: 0
+                  cpu_exec_micros: 0
+                  total_accelerator_exec_micros: 0
+                  total_cpu_exec_micros: 0
+                  run_count: 0
+                  total_run_count: 0
+                  total_definition_count: 1
                 }
                 children {
                   name: "DW/Initializer/random_normal/shape"
@@ -292,6 +328,13 @@ class PrintModelAnalysisTest(test.TestCase):
                   total_parameters: 0
                   float_ops: 0
                   total_float_ops: 0
+                  accelerator_exec_micros: 0
+                  cpu_exec_micros: 0
+                  total_accelerator_exec_micros: 0
+                  total_cpu_exec_micros: 0
+                  run_count: 0
+                  total_run_count: 0
+                  total_definition_count: 1
                 }
                 children {
                   name: "DW/Initializer/random_normal/stddev"
@@ -302,6 +345,13 @@ class PrintModelAnalysisTest(test.TestCase):
                   total_parameters: 0
                   float_ops: 0
                   total_float_ops: 0
+                  accelerator_exec_micros: 0
+                  cpu_exec_micros: 0
+                  total_accelerator_exec_micros: 0
+                  total_cpu_exec_micros: 0
+                  run_count: 0
+                  total_run_count: 0
+                  total_definition_count: 1
                 }
                 float_ops: 0
                 total_float_ops: 0
@@ -330,9 +380,23 @@ class PrintModelAnalysisTest(test.TestCase):
                     }
                   }
                 }
+                accelerator_exec_micros: 0
+                cpu_exec_micros: 0
+                total_accelerator_exec_micros: 0
+                total_cpu_exec_micros: 0
+                run_count: 0
+                total_run_count: 0
+                total_definition_count: 6
               }
               float_ops: 0
               total_float_ops: 0
+              accelerator_exec_micros: 0
+              cpu_exec_micros: 0
+              total_accelerator_exec_micros: 0
+              total_cpu_exec_micros: 0
+              run_count: 0
+              total_run_count: 0
+              total_definition_count: 7
             }
             children {
               name: "DW/read"
@@ -360,9 +424,23 @@ class PrintModelAnalysisTest(test.TestCase):
                   }
                 }
               }
+              accelerator_exec_micros: 0
+              cpu_exec_micros: 0
+              total_accelerator_exec_micros: 0
+              total_cpu_exec_micros: 0
+              run_count: 0
+              total_run_count: 0
+              total_definition_count: 1
             }
             float_ops: 0
             total_float_ops: 0
+            accelerator_exec_micros: 0
+            cpu_exec_micros: 0
+            total_accelerator_exec_micros: 0
+            total_cpu_exec_micros: 0
+            run_count: 0
+            total_run_count: 0
+            total_definition_count: 10
           }
           children {
             name: "zeros"
@@ -373,9 +451,23 @@ class PrintModelAnalysisTest(test.TestCase):
             total_parameters: 0
             float_ops: 0
             total_float_ops: 0
+            accelerator_exec_micros: 0
+            cpu_exec_micros: 0
+            total_accelerator_exec_micros: 0
+            total_cpu_exec_micros: 0
+            run_count: 0
+            total_run_count: 0
+            total_definition_count: 1
           }
           float_ops: 0
-          total_float_ops: 0""", expected_pb)
+          total_float_ops: 0
+          accelerator_exec_micros: 0
+          cpu_exec_micros: 0
+          total_accelerator_exec_micros: 0
+          total_cpu_exec_micros: 0
+          run_count: 0
+          total_run_count: 0
+          total_definition_count: 13""", expected_pb)
       self.assertEqual(expected_pb, tfprof_pb)
 
 

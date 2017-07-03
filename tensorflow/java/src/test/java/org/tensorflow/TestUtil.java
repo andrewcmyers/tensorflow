@@ -15,14 +15,25 @@ limitations under the License.
 
 package org.tensorflow;
 
+
 import java.lang.reflect.Array;
 
+import static org.tensorflow.Types.INT32;
 import org.tensorflow.Types.TFInt32;
 import org.tensorflow.op.Tensors;
 
 /** Static utility functions. */
 public class TestUtil {
-	public static Output<Integer> constant(Graph g, String name, int value) {
+	public static Output<TFInt32> constant(Graph g, String name, int value) {
+		try (Tensor<TFInt32> t = Tensors.create(value)) {
+			return g.opBuilder("Const", name)
+					.setAttr("dtype", DataType.INT32)
+					.setAttr("value", t)
+					.build()
+					.output(0);
+		}
+	}
+	public static Output<TFInt32> constant(Graph g, String name, int[][] value) {
 		try (Tensor<TFInt32> t = Tensors.create(value)) {
 			return g.opBuilder("Const", name)
 					.setAttr("dtype", DataType.INT32)
@@ -75,7 +86,7 @@ public class TestUtil {
   }
 
   public static void transpose_A_times_X(Graph g, int[][] a) {
-    matmul(g, "Y", constant(g, "A", a), placeholder(g, "X", DataType.INT32), true, false);
+    matmul(g, "Y", constant(g, "A", a), placeholder(g, "X", INT32), true, false);
   }
 
   /**

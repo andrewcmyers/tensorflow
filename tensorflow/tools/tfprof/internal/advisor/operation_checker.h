@@ -24,10 +24,11 @@ namespace tfprof {
 
 class OperationChecker : public Checker {
  public:
-  string name() override { return "OperationChecker"; }
+  string name() const override { return kCheckers[1]; }
 
  private:
-  std::vector<string> Check(const TFStats* stats) override {
+  AdviceProto::Checker Check(const AdvisorOptionsProto::CheckerOption& options,
+                             const TFStats* stats) override {
     if (!stats) {
       fprintf(stderr, "Missing profiles (e.g. graph, run_meta). Skip %s\n",
               name().c_str());
@@ -47,28 +48,26 @@ class OperationChecker : public Checker {
       if (node->op_attrs().find("data_format") != node->op_attrs().end()) {
         const AttrValue* attr_val = node->op_attrs().at("data_format");
         if (attr_val->s() == "NHWC" &&
-            IsAcceleratorDevice(node->canonical_device())) {
+            IsPlacedOnAccelerator(node->canonical_device())) {
           recommend_nchw = true;
         }
       }
     }
     if (use_batch_norm && !use_fused_batch_norm) {
-      reports_.push_back(strings::Printf(
-          "%s: Maybe use faster FusedBatchNorm instead of BatchNorm",
-          kLevel[1]));
+      reports_.add_reports(
+          "Maybe use faster FusedBatchNorm instead of BatchNorm");
     }
     if (recommend_nchw) {
       // TODO(xpan): Maybe print which Op supports NCHW.
-      reports_.push_back(strings::Printf(
-          "%s: Found operation using NHWC data_format on GPU. Maybe "
-          "NCHW is faster.",
-          kLevel[1]));
+      reports_.add_reports(
+          "Found operation using NHWC data_format on GPU. Maybe "
+          "NCHW is faster.");
     }
     return reports_;
   }
 
  private:
-  std::vector<string> reports_;
+  AdviceProto::Checker reports_;
 };
 
 }  // namespace tfprof

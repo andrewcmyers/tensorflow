@@ -59,6 +59,10 @@ string ToVlogString(dnn::ActivationMode mode) {
   return dnn::ActivationModeString(mode);
 }
 
+string ToVlogString(const dnn::AlgorithmConfig &algo_config) {
+  return algo_config.ToString();
+}
+
 string ToVlogString(dnn::ElementwiseOperation op) {
   return dnn::ElementwiseOperationString(op);
 }
@@ -482,7 +486,8 @@ Stream &Stream::ThenConvolveWithAlgorithm(
   VLOG_CALL(PARAM(input_descriptor), PARAM(input_data),
             PARAM(filter_descriptor), PARAM(filter_data),
             PARAM(convolution_descriptor), PARAM(biases),
-            PARAM(activation_mode), PARAM(output_descriptor), PARAM(output));
+            PARAM(activation_mode), PARAM(output_descriptor), PARAM(output),
+            PARAM(algorithm_config));
 
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
@@ -515,7 +520,8 @@ Stream &Stream::ThenConvolveWithAlgorithm(
   VLOG_CALL(PARAM(input_descriptor), PARAM(input_data),
             PARAM(filter_descriptor), PARAM(filter_data),
             PARAM(convolution_descriptor), PARAM(biases),
-            PARAM(activation_mode), PARAM(output_descriptor), PARAM(output));
+            PARAM(activation_mode), PARAM(output_descriptor), PARAM(output),
+            PARAM(algorithm_config));
 
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
@@ -546,7 +552,7 @@ Stream &Stream::ThenConvolveWithAlgorithm(
   VLOG_CALL(PARAM(input_descriptor), PARAM(input_data),
             PARAM(filter_descriptor), PARAM(filter_data),
             PARAM(convolution_descriptor), PARAM(output_descriptor),
-            PARAM(output));
+            PARAM(output), PARAM(algorithm_config));
 
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
@@ -577,7 +583,7 @@ Stream &Stream::ThenConvolveWithAlgorithm(
   VLOG_CALL(PARAM(input_descriptor), PARAM(input_data),
             PARAM(filter_descriptor), PARAM(filter_data),
             PARAM(convolution_descriptor), PARAM(output_descriptor),
-            PARAM(output));
+            PARAM(output), PARAM(algorithm_config));
 
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
@@ -4406,15 +4412,16 @@ Stream &Stream::ThenTransformTensor(const dnn::BatchDescriptor &input_desc,
                                     dnn::DataType input_type,
                                     const DeviceMemoryBase &input_data,
                                     const dnn::BatchDescriptor &output_desc,
-                                    dnn::DataType output_type,
+                                    dnn::DataType output_type, float scale,
                                     DeviceMemoryBase *output_data) {
   VLOG_CALL(PARAM(input_desc), PARAM(input_type), PARAM(input_data),
-            PARAM(output_desc), PARAM(output_type), PARAM(output_data));
+            PARAM(output_desc), PARAM(output_type), PARAM(scale),
+            PARAM(output_data));
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(dnn->DoTransformTensor(this, input_desc, input_type,
                                         input_data, output_desc, output_type,
-                                        output_data));
+                                        scale, output_data));
     } else {
       SetErrorAndLogNoDnnSupport();
     }
