@@ -22,50 +22,50 @@ import org.tensorflow.Types.TFInt32;
 import org.tensorflow.op.Tensors;
 /** Static utility functions. */
 public class TestUtil {
-	public static Output<TFInt32> constant(Graph g, String name, int value) {
-      try (Tensor<TFInt32> t = Tensors.create(value)) {
-        return g.opBuilder("Const", name)
-                .setAttr("dtype", DataType.INT32)
-                .setAttr("value", t)
-                .build()
-                .output(0);
-      }
-	}
-	public static Output<TFInt32> constant(Graph g, String name, int[][] value) {
-	  try (Tensor<TFInt32> t = Tensors.create(value)) {
-        return g.opBuilder("Const", name)
-                .setAttr("dtype", DataType.INT32)
-                .setAttr("value", t)
-                .build()
-                .output(0);
-      }
-	}
+  public static Output<TFInt32> constant(Graph g, String name, int value) {
+    try (Tensor<TFInt32> t = Tensors.create(value)) {
+      return g.opBuilder("Const", name)
+              .setAttr("dtype", DataType.INT32)
+              .setAttr("value", t)
+              .build()
+              .output(0);
+    }
+  }
+  public static Output<TFInt32> constant(Graph g, String name, int[][] value) {
+    try (Tensor<TFInt32> t = Tensors.create(value)) {
+      return g.opBuilder("Const", name)
+              .setAttr("dtype", DataType.INT32)
+              .setAttr("value", t)
+              .build()
+              .output(0);
+    }
+  }
 	
-	/** Deprecated. Does not check that the value's type and T match. */
-	public static <T> Output<T> constant(Graph g, String name, Object value) {
+  /** Deprecated. Does not check that the value's type and T match. */
+  public static <T> Output<T> constant(Graph g, String name, Object value) {
     try (Tensor<T> t = Tensor.create(value)) {
       return g.opBuilder("Const", name)
           .setAttr("dtype", t.dataType())
           .setAttr("value", t)
           .build()
           .output(0);
-      }    
+    }    
+  }
+  public static <T> Output<T> constant(Graph g, String name, Object value, Class<T> type) {
+    try (Tensor<T> t = Tensor.create(value, type)) {
+      return g.opBuilder("Const", name)
+              .setAttr("dtype", t.dataType())
+              .setAttr("value", t)
+              .build()
+              .output(0);
     }
-	public static <T> Output<T> constant(Graph g, String name, Object value, Class<T> type) {
-	    try (Tensor<T> t = Tensor.create(value, type)) {
-	      return g.opBuilder("Const", name)
-	          .setAttr("dtype", t.dataType())
-	          .setAttr("value", t)
-	          .build()
-	          .output(0);
-	    }
   }
 
   public static Output<?> placeholder(Graph g, String name, DataType dtype) {
     return g.opBuilder("Placeholder", name).setAttr("dtype", dtype).build().output(0);
   }
   public static <T> Output<T> placeholder(Graph g, String name, Class<T> type) {
-	return g.opBuilder("Placeholder", name).setAttr("dtype", Types.dataType(type)).build().output(0);
+    return g.opBuilder("Placeholder", name).setAttr("dtype", Types.dataType(type)).build().output(0);
   }
   
   public static Output<?> addN(Graph g, Output<?>... inputs) {

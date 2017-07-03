@@ -23,29 +23,34 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
-
 import org.tensorflow.DataType;
 import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
-import static org.tensorflow.Types.*;
+import org.tensorflow.Types;
+import org.tensorflow.Types.TFInt32;
+import org.tensorflow.Types.TFUInt8;
+import org.tensorflow.Types.TFFloat;
+import org.tensorflow.Types.TFString;
+import static org.tensorflow.Types.INT32;
+import static org.tensorflow.Types.FLOAT;
+import static org.tensorflow.Types.STRING;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
   private static void printUsage(PrintStream s) {
     final String url = "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip";
     s.println(
-            "Java program that uses a pre-trained Inception model (http://arxiv.org/abs/1512.00567)");
+        "Java program that uses a pre-trained Inception model (http://arxiv.org/abs/1512.00567)");
     s.println("to label JPEG images.");
     s.println("TensorFlow version: " + TensorFlow.version());
     s.println();
     s.println("Usage: label_image <model dir> <image file>");
     s.println();
     s.println("Where:");
-    s.println(
-            "<model dir> is a directory containing the unzipped contents of the inception model");
+    s.println("<model dir> is a directory containing the unzipped contents of the inception model");
     s.println("            (from " + url + ")");
     s.println("<image file> is the path to a JPEG image file");
   }
@@ -58,19 +63,18 @@ public class LabelImage {
     String modelDir = args[0];
     String imageFile = args[1];
 
-    byte[] graphDef = readAllBytesOrExit(
-            Paths.get(modelDir, "tensorflow_inception_graph.pb"));
-    List<String> labels = readAllLinesOrExit(
-            Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
+    byte[] graphDef = readAllBytesOrExit(Paths.get(modelDir, "tensorflow_inception_graph.pb"));
+    List<String> labels =
+        readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
     byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
 
-    try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(
-            imageBytes)) {
+    try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
       float[] labelProbabilities = executeInceptionGraph(graphDef, image);
       int bestLabelIdx = maxIndex(labelProbabilities);
-      System.out.println(String.format("BEST MATCH: %s (%.2f%% likely)",
-          labels.get(bestLabelIdx),
-          labelProbabilities[bestLabelIdx] * 100f));
+      System.out.println(
+          String.format("BEST MATCH: %s (%.2f%% likely)",
+              labels.get(bestLabelIdx),
+              labelProbabilities[bestLabelIdx] * 100f));
     }
   }
 
@@ -181,7 +185,7 @@ public class LabelImage {
     }
 
     <T, U> Output<U> cast(Output<T> value, Class<U> type) {
-      DataType dtype = dataType(type);
+      DataType dtype = Types.dataType(type);
       return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
     }
 
@@ -196,7 +200,7 @@ public class LabelImage {
     <T> Output<T> constant(String name, Object value, Class<T> type) {
       try (Tensor<T> t = Tensor.create(value, type)) {
         return g.opBuilder("Const", name)
-            .setAttr("dtype", t.dataType())
+            .setAttr("dtype", Types.dataType(type))
             .setAttr("value", t)
             .build()
             .output(0);

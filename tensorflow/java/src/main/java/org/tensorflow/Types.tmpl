@@ -10,29 +10,31 @@ import java.util.Map;
  */
 public class Types {
 
-        private Types() {} // not instantiable
+  private Types() {} // not instantiable
 
-	private static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
-	/** Convert to the equivalent DataType. */
+  private static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
+  /** Convert to the equivalent DataType. */
 
-	public static DataType dataType(Class<?> c) {
-		Integer code = typeCodes.get(c);
-		if (code == null) throw new IllegalArgumentException("" + c + " is not a TensorFlow type.");
-		return DataType.fromC(code.intValue());
-	}
-	
-	private static final Map<Class<?>, Object> scalars = new HashMap<>();
-	
-	public static Object defaultScalar(Class<?> c) {
-		return scalars.get(c);
-	}
-	
-	/**
-	 * A marker interface for classes representing Tensorflow types.
-	 */
-	interface TFType {}
-	
-	// The following classes represent Tensorflow types when used as type parameters to
-	// types such as Tensor and Output.
+  public static DataType dataType(Class<?> c) {
+    Integer code = typeCodes.get(c);
+    if (code == null) {
+      throw new IllegalArgumentException("" + c + " is not a TensorFlow type.");
+    }
+    return DataType.fromC(code.intValue());
+  }
+
+  private static final Map<Class<?>, Object> scalars = new HashMap<>();
+
+  public static Object defaultScalar(Class<?> c) {
+    return scalars.get(c);
+  }
+
+  /**
+   * A marker interface for classes representing Tensorflow types.
+   */
+  interface TFType {}
+
+  // The following classes represent Tensorflow types when used as type parameters to
+  // types such as Tensor and Output.
 @TYPEINFO@
 }
