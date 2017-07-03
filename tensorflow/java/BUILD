@@ -12,9 +12,9 @@ java_library(
     srcs = [
         ":java_op_sources",
         ":java_sources",
+        ":create_Types"
     ],
     data = [":libtensorflow_jni"],
-    deps = [ "create_Types" ],
     javacopts = JAVACOPTS,
     visibility = ["//visibility:public"],
 )
@@ -244,10 +244,9 @@ filegroup(
 
 genrule(
     name = "create_Types",
-    srcs = ["src/main/java/org/tensorflow/Types.tmpl",
-            "src/main/tmpl/tftypes.csv",
-            "src/main/tmpl/tftypes.pl"],
-    outs = ["src/main/java/org/tensorflow/Types.java"],
-    cmd = "perl src/main/tmpl/tftypes.pl -t < src/main/java/org/tensorflow/Types.tmpl > $@"
+    srcs = glob(["tensorflow/java/src/main/java/org/tensorflow/Types.tmpl",
+                "**/tftypes.csv", "tensorflow/java/src/main/tmpl/tftypes.pl"]),
+    outs = ["tensorflow/java/src/main/java/org/tensorflow/Types.java"],
+    cmd = "echo '`pwd` building Types.java to $@' 2>&1; perl tensorflow/java/src/main/tmpl/tftypes.pl -t tensorflow/java/src/main/tmpl/tftypes.csv tensorflow/java/src/main/java/org/tensorflow/Types.tmpl > \"$@\"",
 )
 

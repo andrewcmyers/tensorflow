@@ -26,7 +26,7 @@ import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
 
-import static org.tensorflow.Types.*;
+@IMPORTS@
 
 /**
  * A typed multi-dimensional array.
