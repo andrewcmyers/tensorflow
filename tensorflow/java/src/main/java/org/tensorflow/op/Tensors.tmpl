@@ -3,9 +3,12 @@ import org.tensorflow.Tensor;
 @IMPORTS@
 
 /**
- * Convenience methods for creating Tensors of popular types, with type checking.
+ * Utility class offering convenience methods for creating Tensors of popular
+ * types, in a type-safe way.
  */
 public class Tensors {
+  private Tensors() {}
+
   public static Tensor<TFString> create(byte[] data) {
     return Tensor.create(data);
   }

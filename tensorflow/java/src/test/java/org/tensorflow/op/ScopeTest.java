@@ -28,8 +28,8 @@ import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.Types;
-
-import static org.tensorflow.Types.*;
+import org.tensorflow.Types.TFInt32;
+import static org.tensorflow.Types.INT32;
 
 /** Unit tests for {@link org.tensorflow.Scope}. */
 @RunWith(JUnit4.class)

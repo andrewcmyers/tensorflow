@@ -15,8 +15,6 @@ limitations under the License.
 
 package org.tensorflow;
 
-import static org.tensorflow.Types.*;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -26,6 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.tensorflow.op.Tensors;
+import org.tensorflow.Types.TFInt32;
+import org.tensorflow.Types.TFBool;
 
 /** Unit tests for {@link org.tensorflow.OperationBuilder}. */
 @RunWith(JUnit4.class)

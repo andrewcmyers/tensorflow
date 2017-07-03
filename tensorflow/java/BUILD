@@ -12,7 +12,9 @@ java_library(
     srcs = [
         ":java_op_sources",
         ":java_sources",
-        ":create_Types"
+        ":create_Types",
+        ":create_Tensor",
+        ":create_Tensors"
     ],
     data = [":libtensorflow_jni"],
     javacopts = JAVACOPTS,
@@ -244,9 +246,21 @@ filegroup(
 
 genrule(
     name = "create_Types",
-    srcs = glob(["tensorflow/java/src/main/java/org/tensorflow/Types.tmpl",
-                "**/tftypes.csv", "tensorflow/java/src/main/tmpl/tftypes.pl"]),
+    srcs = glob(["**/Types.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
     outs = ["tensorflow/java/src/main/java/org/tensorflow/Types.java"],
-    cmd = "echo '`pwd` building Types.java to $@' 2>&1; perl tensorflow/java/src/main/tmpl/tftypes.pl -t tensorflow/java/src/main/tmpl/tftypes.csv tensorflow/java/src/main/java/org/tensorflow/Types.tmpl > \"$@\"",
+    cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/main/tmpl/tftypes.pl -t tensorflow/java/src/main/tmpl/tftypes.csv tensorflow/java/src/main/java/org/tensorflow/Types.tmpl > \"$@\""
 )
 
+genrule(
+    name = "create_Tensor",
+    srcs = glob(["**/Tensor.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
+    outs = ["tensorflow/java/src/main/java/org/tensorflow/Tensor.java"],
+    cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/main/tmpl/tftypes.pl -T tensorflow/java/src/main/tmpl/tftypes.csv tensorflow/java/src/main/java/org/tensorflow/Tensor.tmpl > \"$@\"",
+)
+
+genrule(
+    name = "create_Tensors",
+    srcs = glob(["**/Tensors.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
+    outs = ["tensorflow/java/src/main/java/org/tensorflow/op/Tensors.java"],
+    cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/main/tmpl/tftypes.pl -c tensorflow/java/src/main/tmpl/tftypes.csv tensorflow/java/src/main/java/org/tensorflow/op/Tensors.tmpl > \"$@\"",
+)
