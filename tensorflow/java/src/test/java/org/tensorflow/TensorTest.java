@@ -39,7 +39,6 @@ import org.tensorflow.Types.TFInt32;
 import org.tensorflow.Types.TFString;
 import static org.tensorflow.Types.STRING;
 import org.tensorflow.Types.TFInt64;
-import static org.tensorflow.Types.INT64;
 import org.tensorflow.Types.TFBool;
 import static org.tensorflow.Types.BOOL;
 
@@ -179,10 +178,10 @@ public class TensorTest {
     boolean[] bools = {true, false, true};
 
     try (Tensor<TFInt32> tints = Tensors.create(ints);
-        Tensor<TFFloat> tfloats = Tensor.create(floats, FLOAT);
-        Tensor<TFDouble> tdoubles = Tensor.create(doubles, DOUBLE);
-        Tensor<TFInt64> tlongs = Tensor.create(longs, INT64);
-        Tensor<TFBool> tbools = Tensor.create(bools, BOOL)) {
+         Tensor<TFFloat> tfloats = Tensors.create(floats);
+         Tensor<TFDouble> tdoubles = Tensors.create(doubles);
+         Tensor<TFInt64> tlongs = Tensors.create(longs);
+         Tensor<TFBool> tbools = Tensors.create(bools)) {
 
       // validate that any datatype is readable with ByteBuffer (content, position)
       {

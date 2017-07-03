@@ -28,7 +28,6 @@ import org.junit.runners.JUnit4;
 import org.tensorflow.op.Tensors;
 import org.tensorflow.Types.TFInt32;
 
-
 /** Unit tests for {@link org.tensorflow.Session}. */
 @RunWith(JUnit4.class)
 public class SessionTest {

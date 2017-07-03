@@ -15,32 +15,30 @@ limitations under the License.
 
 package org.tensorflow;
 
-
 import java.lang.reflect.Array;
 
 import static org.tensorflow.Types.INT32;
 import org.tensorflow.Types.TFInt32;
 import org.tensorflow.op.Tensors;
-
 /** Static utility functions. */
 public class TestUtil {
 	public static Output<TFInt32> constant(Graph g, String name, int value) {
-		try (Tensor<TFInt32> t = Tensors.create(value)) {
-			return g.opBuilder("Const", name)
-					.setAttr("dtype", DataType.INT32)
-					.setAttr("value", t)
-					.build()
-					.output(0);
-		}
+      try (Tensor<TFInt32> t = Tensors.create(value)) {
+        return g.opBuilder("Const", name)
+                .setAttr("dtype", DataType.INT32)
+                .setAttr("value", t)
+                .build()
+                .output(0);
+      }
 	}
 	public static Output<TFInt32> constant(Graph g, String name, int[][] value) {
-		try (Tensor<TFInt32> t = Tensors.create(value)) {
-			return g.opBuilder("Const", name)
-					.setAttr("dtype", DataType.INT32)
-					.setAttr("value", t)
-					.build()
-					.output(0);
-		}
+	  try (Tensor<TFInt32> t = Tensors.create(value)) {
+        return g.opBuilder("Const", name)
+                .setAttr("dtype", DataType.INT32)
+                .setAttr("value", t)
+                .build()
+                .output(0);
+      }
 	}
 	
 	/** Deprecated. Does not check that the value's type and T match. */

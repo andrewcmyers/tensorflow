@@ -30,8 +30,7 @@ import org.tensorflow.Types.TFBool;
 /** Unit tests for {@link org.tensorflow.OperationBuilder}. */
 @RunWith(JUnit4.class)
 public class OperationBuilderTest {
-
-// TODO(ashankar): Restore this test once the C API gracefully handles mixing graphs and
+  // TODO(ashankar): Restore this test once the C API gracefully handles mixing graphs and
   // operations instead of segfaulting.
   @Test
   @Ignore
@@ -48,7 +47,6 @@ public class OperationBuilderTest {
       }
     }
   }
-  
   @Test
   public void failOnUseAfterBuild() {
     try (Graph g = new Graph();

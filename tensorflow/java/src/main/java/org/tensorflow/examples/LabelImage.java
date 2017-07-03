@@ -34,45 +34,45 @@ import static org.tensorflow.Types.*;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
-    private static void printUsage(PrintStream s) {
-        final String url = "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip";
-        s.println(
-                "Java program that uses a pre-trained Inception model (http://arxiv.org/abs/1512.00567)");
-        s.println("to label JPEG images.");
-        s.println("TensorFlow version: " + TensorFlow.version());
-        s.println();
-        s.println("Usage: label_image <model dir> <image file>");
-        s.println();
-        s.println("Where:");
-        s.println(
-                "<model dir> is a directory containing the unzipped contents of the inception model");
-        s.println("            (from " + url + ")");
-        s.println("<image file> is the path to a JPEG image file");
+  private static void printUsage(PrintStream s) {
+    final String url = "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip";
+    s.println(
+            "Java program that uses a pre-trained Inception model (http://arxiv.org/abs/1512.00567)");
+    s.println("to label JPEG images.");
+    s.println("TensorFlow version: " + TensorFlow.version());
+    s.println();
+    s.println("Usage: label_image <model dir> <image file>");
+    s.println();
+    s.println("Where:");
+    s.println(
+            "<model dir> is a directory containing the unzipped contents of the inception model");
+    s.println("            (from " + url + ")");
+    s.println("<image file> is the path to a JPEG image file");
+  }
+
+  public static void main(String[] args) {
+    if (args.length != 2) {
+      printUsage(System.err);
+      System.exit(1);
     }
+    String modelDir = args[0];
+    String imageFile = args[1];
 
-    public static void main(String[] args) {
-        if (args.length != 2) {
-            printUsage(System.err);
-            System.exit(1);
-        }
-        String modelDir = args[0];
-        String imageFile = args[1];
+    byte[] graphDef = readAllBytesOrExit(
+            Paths.get(modelDir, "tensorflow_inception_graph.pb"));
+    List<String> labels = readAllLinesOrExit(
+            Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
+    byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
 
-        byte[] graphDef = readAllBytesOrExit(
-                Paths.get(modelDir, "tensorflow_inception_graph.pb"));
-        List<String> labels = readAllLinesOrExit(
-                Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
-        byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
-
-        try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(
-                imageBytes)) {
-            float[] labelProbabilities = executeInceptionGraph(graphDef, image);
-            int bestLabelIdx = maxIndex(labelProbabilities);
-            System.out.println(String.format("BEST MATCH: %s (%.2f%% likely)",
-                    labels.get(bestLabelIdx),
-                    labelProbabilities[bestLabelIdx] * 100f));
-        }
+    try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(
+            imageBytes)) {
+      float[] labelProbabilities = executeInceptionGraph(graphDef, image);
+      int bestLabelIdx = maxIndex(labelProbabilities);
+      System.out.println(String.format("BEST MATCH: %s (%.2f%% likely)",
+          labels.get(bestLabelIdx),
+          labelProbabilities[bestLabelIdx] * 100f));
     }
+  }
 
   private static Tensor<TFFloat> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
     try (Graph g = new Graph()) {
