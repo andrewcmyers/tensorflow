@@ -30,6 +30,17 @@ import java.nio.LongBuffer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import org.tensorflow.op.Tensors;
+import org.tensorflow.Types.TFFloat;
+import static org.tensorflow.Types.FLOAT;
+import org.tensorflow.Types.TFDouble;
+import static org.tensorflow.Types.DOUBLE;
+import org.tensorflow.Types.TFInt32;
+import org.tensorflow.Types.TFString;
+import static org.tensorflow.Types.STRING;
+import org.tensorflow.Types.TFInt64;
+import org.tensorflow.Types.TFBool;
+import static org.tensorflow.Types.BOOL;
 
 /** Unit tests for {@link org.tensorflow.Tensor}. */
 @RunWith(JUnit4.class)
@@ -47,7 +58,7 @@ public class TensorTest {
     byte[] strings = "test".getBytes(UTF_8);
     long[] strings_shape = {};
     byte[] strings_; // raw TF_STRING
-    try (Tensor<String> t = Tensor.create(strings, Type.STRING)) {
+    try (Tensor<TFString> t = Tensor.create(strings, DataType.STRING)) {
       ByteBuffer to = ByteBuffer.allocate(t.numBytes());
       t.writeTo(to);
       strings_ = to.array();
@@ -55,7 +66,7 @@ public class TensorTest {
 
     // validate creating a tensor using a byte buffer
     {
-      try (Tensor<Boolean> t = Tensor.create(Type.BOOL, bools_shape, ByteBuffer.wrap(bools_))) {
+      try (Tensor<TFBool> t = Tensor.create(Types.BOOL, bools_shape, ByteBuffer.wrap(bools_))) {
         boolean[] actual = t.copyTo(new boolean[bools_.length]);
         for (int i = 0; i < bools.length; ++i) {
           assertEquals("" + i, bools[i], actual[i]);
@@ -63,7 +74,7 @@ public class TensorTest {
       }
 
       // note: the buffer is expected to contain raw TF_STRING (as per C API)
-      try (Tensor<String> t = Tensor.create(Type.STRING, strings_shape, ByteBuffer.wrap(strings_))) {
+      try (Tensor<TFString> t = Tensor.create(STRING, strings_shape, ByteBuffer.wrap(strings_))) {
         assertArrayEquals(strings, t.bytesValue());
       }
     }
@@ -72,15 +83,15 @@ public class TensorTest {
     {
       ByteBuffer buf = ByteBuffer.allocateDirect(8 * doubles.length).order(ByteOrder.nativeOrder());
       buf.asDoubleBuffer().put(doubles);
-      try (Tensor<Double> t = Tensor.create(Type.DOUBLE, doubles_shape, buf)) {
+      try (Tensor<TFDouble> t = Tensor.create(DOUBLE, doubles_shape, buf)) {
         double[] actual = new double[doubles.length];
         assertArrayEquals(doubles, t.copyTo(actual), EPSILON);
       }
     }
 
     // validate shape checking
-    try (Tensor<Boolean> t =
-        Tensor.create(Type.BOOL, new long[bools_.length * 2], ByteBuffer.wrap(bools_))) {
+    try (Tensor<TFBool> t =
+        Tensor.create(BOOL, new long[bools_.length * 2], ByteBuffer.wrap(bools_))) {
       fail("should have failed on incompatible buffer");
     } catch (IllegalArgumentException e) {
       // expected
@@ -99,7 +110,7 @@ public class TensorTest {
             .asDoubleBuffer()
             .put(doubles);
     buf.flip();
-    try (Tensor<Double> t = Tensor.create(new long[] {doubles.length}, buf)) {
+    try (Tensor<TFDouble> t = Tensor.create(new long[] {doubles.length}, buf)) {
       double[] actual = new double[doubles.length];
       assertArrayEquals(doubles, t.copyTo(actual), EPSILON);
     }
@@ -115,19 +126,19 @@ public class TensorTest {
 
     // validate creating a tensor using a typed buffer
     {
-      try (Tensor<Double> t = Tensor.create(shape, DoubleBuffer.wrap(doubles))) {
+      try (Tensor<TFDouble> t = Tensor.create(shape, DoubleBuffer.wrap(doubles))) {
         double[] actual = new double[doubles.length];
         assertArrayEquals(doubles, t.copyTo(actual), EPSILON);
       }
-      try (Tensor<Float> t = Tensor.create(shape, FloatBuffer.wrap(floats))) {
+      try (Tensor<TFFloat> t = Tensor.create(shape, FloatBuffer.wrap(floats))) {
         float[] actual = new float[floats.length];
         assertArrayEquals(floats, t.copyTo(actual), EPSILON_F);
       }
-      try (Tensor<Integer> t = Tensor.create(shape, IntBuffer.wrap(ints))) {
+      try (Tensor<TFInt32> t = Tensor.create(shape, IntBuffer.wrap(ints))) {
         int[] actual = new int[ints.length];
         assertArrayEquals(ints, t.copyTo(actual));
       }
-      try (Tensor<Long> t = Tensor.create(shape, LongBuffer.wrap(longs))) {
+      try (Tensor<TFInt64> t = Tensor.create(shape, LongBuffer.wrap(longs))) {
         long[] actual = new long[longs.length];
         assertArrayEquals(longs, t.copyTo(actual));
       }
@@ -135,22 +146,22 @@ public class TensorTest {
 
     // validate shape-checking
     {
-      try (Tensor<Double> t = Tensor.create(new long[doubles.length + 1], DoubleBuffer.wrap(doubles))) {
+      try (Tensor<TFDouble> t = Tensor.create(new long[doubles.length + 1], DoubleBuffer.wrap(doubles))) {
         fail("should have failed on incompatible buffer");
       } catch (IllegalArgumentException e) {
         // expected
       }
-      try (Tensor<Float> t = Tensor.create(new long[floats.length + 1], FloatBuffer.wrap(floats))) {
+      try (Tensor<TFFloat> t = Tensor.create(new long[floats.length + 1], FloatBuffer.wrap(floats))) {
         fail("should have failed on incompatible buffer");
       } catch (IllegalArgumentException e) {
         // expected
       }
-      try (Tensor<Integer> t = Tensor.create(new long[ints.length + 1], IntBuffer.wrap(ints))) {
+      try (Tensor<TFInt32> t = Tensor.create(new long[ints.length + 1], IntBuffer.wrap(ints))) {
         fail("should have failed on incompatible buffer");
       } catch (IllegalArgumentException e) {
         // expected
       }
-      try (Tensor<Long> t = Tensor.create(new long[longs.length + 1], LongBuffer.wrap(longs))) {
+      try (Tensor<TFInt64> t = Tensor.create(new long[longs.length + 1], LongBuffer.wrap(longs))) {
         fail("should have failed on incompatible buffer");
       } catch (IllegalArgumentException e) {
         // expected
@@ -166,11 +177,11 @@ public class TensorTest {
     long[] longs = {1L, 2L, 3L};
     boolean[] bools = {true, false, true};
 
-    try (Tensor<Integer> tints = Tensor.create(ints, Type.INT32);
-        Tensor<Float> tfloats = Tensor.create(floats, Type.FLOAT);
-        Tensor<Double> tdoubles = Tensor.create(doubles, Type.DOUBLE);
-        Tensor<Long> tlongs = Tensor.create(longs, Type.INT64);
-        Tensor<Boolean> tbools = Tensor.create(bools, Type.BOOL)) {
+    try (Tensor<TFInt32> tints = Tensors.create(ints);
+         Tensor<TFFloat> tfloats = Tensors.create(floats);
+         Tensor<TFDouble> tdoubles = Tensors.create(doubles);
+         Tensor<TFInt64> tlongs = Tensors.create(longs);
+         Tensor<TFBool> tbools = Tensors.create(bools)) {
 
       // validate that any datatype is readable with ByteBuffer (content, position)
       {
@@ -293,28 +304,28 @@ public class TensorTest {
 
   @Test
   public void scalars() {
-    try (Tensor<Float> t = Tensor.create(2.718f, Type.FLOAT)) {
+    try (Tensor<TFFloat> t = Tensor.create(2.718f, FLOAT)) {
       assertEquals(DataType.FLOAT, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
       assertEquals(2.718f, t.floatValue(), EPSILON_F);
     }
 
-    try (Tensor<Double> t = Tensor.create(3.1415, Type.DOUBLE)) {
+    try (Tensor<TFDouble> t = Tensors.create(3.1415)) {
       assertEquals(DataType.DOUBLE, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
       assertEquals(3.1415, t.doubleValue(), EPSILON);
     }
 
-    try (Tensor<Integer> t = Tensor.create(-33)) {
+    try (Tensor<TFInt32> t = Tensors.create(-33)) {
       assertEquals(DataType.INT32, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
       assertEquals(-33, t.intValue());
     }
 
-    try (Tensor<Long> t = Tensor.create(8589934592L)) {
+    try (Tensor<TFInt64> t = Tensor.create(8589934592L)) {
       assertEquals(DataType.INT64, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
@@ -329,7 +340,7 @@ public class TensorTest {
     }
 
     final byte[] bytes = {1, 2, 3, 4};
-    try (Tensor<String> t = Tensor.create(bytes, Type.STRING)) {
+    try (Tensor<TFString> t = Tensor.create(bytes)) {
       assertEquals(DataType.STRING, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);
@@ -340,7 +351,7 @@ public class TensorTest {
   @Test
   public void nDimensional() {
     double[] vector = {1.414, 2.718, 3.1415};
-    try (Tensor<Double> t = Tensor.create(vector)) {
+    try (Tensor<TFDouble> t = Tensor.create(vector)) {
       assertEquals(DataType.DOUBLE, t.dataType());
       assertEquals(1, t.numDimensions());
       assertArrayEquals(new long[] {3}, t.shape());
@@ -350,7 +361,7 @@ public class TensorTest {
     }
 
     int[][] matrix = {{1, 2, 3}, {4, 5, 6}};
-    try (Tensor<Integer> t = Tensor.create(matrix)) {
+    try (Tensor<TFInt32> t = Tensor.create(matrix)) {
       assertEquals(DataType.INT32, t.dataType());
       assertEquals(2, t.numDimensions());
       assertArrayEquals(new long[] {2, 3}, t.shape());
@@ -362,7 +373,7 @@ public class TensorTest {
     long[][][] threeD = {
       {{1}, {3}, {5}, {7}, {9}}, {{2}, {4}, {6}, {8}, {0}},
     };
-    try (Tensor<Long> t = Tensor.create(threeD)) {
+    try (Tensor<TFInt64> t = Tensor.create(threeD)) {
       assertEquals(DataType.INT64, t.dataType());
       assertEquals(3, t.numDimensions());
       assertArrayEquals(new long[] {2, 5, 1}, t.shape());
@@ -376,7 +387,7 @@ public class TensorTest {
       {{{false, false, true, true}, {false, true, false, false}}},
       {{{false, true, false, true}, {false, true, true, false}}},
     };
-    try (Tensor<Boolean> t = Tensor.create(fourD, Type.BOOL)) {
+    try (Tensor<TFBool> t = Tensor.create(fourD)) {
       assertEquals(DataType.BOOL, t.dataType());
       assertEquals(4, t.numDimensions());
       assertArrayEquals(new long[] {3, 1, 2, 4}, t.shape());
@@ -394,7 +405,7 @@ public class TensorTest {
         invalid[x][y] = new int[x + y + 1];
       }
     }
-    try (Tensor<Integer> t = Tensor.create(invalid)) {
+    try (Tensor<TFInt32> t = Tensor.create(invalid)) {
       fail("Tensor.create() should fail because of differing sizes in the 3rd dimension");
     } catch (IllegalArgumentException e) {
       // The expected exception.
@@ -403,7 +414,7 @@ public class TensorTest {
 
   @Test
   public void failCopyToOnIncompatibleDestination() {
-    try (final Tensor<Integer> matrix = Tensor.create(new int[][] {{1, 2}, {3, 4}})) {
+    try (final Tensor<TFInt32> matrix = Tensor.create(new int[][] {{1, 2}, {3, 4}})) {
       try {
         matrix.copyTo(new int[2]);
         fail("should have failed on dimension mismatch");
@@ -429,7 +440,7 @@ public class TensorTest {
 
   @Test
   public void failCopyToOnScalar() {
-    try (final Tensor<Integer> scalar = Tensor.create(3)) {
+    try (final Tensor<TFInt32> scalar = Tensor.create(3)) {
       try {
         scalar.copyTo(3);
         fail("copyTo should fail on scalar tensors, suggesting use of primitive accessors instead");
@@ -441,7 +452,7 @@ public class TensorTest {
 
   @Test
   public void failOnArbitraryObject() {
-    try (Tensor<Integer> t = Tensor.create(new Object(), Type.INT32)) {
+    try (Tensor<TFInt32> t = Tensor.create(new Object())) {
       fail("should fail on creating a Tensor with a Java object that has no equivalent DataType");
     } catch (IllegalArgumentException e) {
       // The expected exception.
@@ -450,7 +461,7 @@ public class TensorTest {
 
   @Test
   public void failOnZeroDimension() {
-    try (Tensor<Integer> t = Tensor.create(new int[3][0][1])) {
+    try (Tensor<TFInt32> t = Tensor.create(new int[3][0][1])) {
       fail("should fail on creating a Tensor where one of the dimensions is 0");
     } catch (IllegalArgumentException e) {
       // The expected exception.
@@ -460,7 +471,7 @@ public class TensorTest {
   @Test
   public void useAfterClose() {
     int n = 4;
-    Tensor<Integer> t = Tensor.create(n);
+    Tensor<TFInt32> t = Tensor.create(n);
     t.close();
     try {
       t.intValue();
@@ -478,7 +489,7 @@ public class TensorTest {
     // An exception is made for this test, where the pitfalls of this is avoided by not calling
     // close() on both Tensors.
     final float[][] matrix = {{1, 2, 3}, {4, 5, 6}};
-    try (Tensor<Float> src = Tensor.create(matrix)) {
+    try (Tensor<TFFloat> src = Tensor.create(matrix)) {
       Tensor<?> cpy = Tensor.fromHandle(src.getNativeHandle());
       assertEquals(src.dataType(), cpy.dataType());
       assertEquals(src.numDimensions(), cpy.numDimensions());

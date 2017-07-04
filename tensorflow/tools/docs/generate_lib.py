@@ -20,6 +20,7 @@ from __future__ import print_function
 
 import argparse
 import os
+import sys
 
 import six
 
@@ -181,7 +182,7 @@ def add_dict_to_dict(add_from, add_to):
 
 # Exclude some libaries in contrib from the documentation altogether.
 def _get_default_private_map():
-  return {}
+  return {'tf.test': ['mock']}
 
 
 # Exclude members of some libaries.
@@ -415,6 +416,8 @@ class DocGenerator(object):
   """Main entry point for generating docs."""
 
   def __init__(self):
+    if sys.version_info >= (3, 0):
+      print('Warning: Doc generation is not supported from python3.')
     self.argument_parser = argparse.ArgumentParser()
     self._py_modules = None
     self._private_map = _get_default_private_map()
@@ -442,7 +445,7 @@ class DocGenerator(object):
         '--base_dir',
         type=str,
         default=default_base_dir,
-        help='Base directory to to strip from file names referenced in docs.')
+        help='Base directory to strip from file names referenced in docs.')
 
   def parse_known_args(self):
     flags, _ = self.argument_parser.parse_known_args()

@@ -15,5 +15,4 @@ node_modules
 __pycache__
 *.swp
 .vscode/
-/temp_classes/
-/.apt_generated/
+/bin/

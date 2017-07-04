@@ -192,9 +192,6 @@ void Timeline::AllocateTimeNodes(GraphNode* gnode) {
     const TFGraphNode* node = gnode->node;
     for (const auto& kernel_execs : node->op_execs(step_)) {
       const string& device = kernel_execs.first;
-      if (!IsCombinedGPUStream(device) && !IsCPUDevice(device)) {
-        continue;
-      }
 
       if (process_.find(device) == process_.end()) {
         int64 pid = AllocatePID();
@@ -330,7 +327,7 @@ void Timeline::AllocateLanes() {
       int64 start_time = tnode.second->start_micros;
       int64 end_time = tnode.second->start_micros + tnode.second->exec_micros;
       int64 l = -1;
-      for (int i = 0; i < p->lanes.size(); ++i) {
+      for (int64 i = 0; i < p->lanes.size(); ++i) {
         const auto& lane = p->lanes[i];
         l = i;
         for (auto cur_it = lane.rbegin(); cur_it != lane.rend(); ++cur_it) {

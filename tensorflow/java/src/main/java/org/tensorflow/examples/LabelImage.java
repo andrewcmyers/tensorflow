@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import org.tensorflow.Type;
+import org.tensorflow.Types;
 import org.tensorflow.shapechecker.qual.scalar;
 import org.tensorflow.shapechecker.qual.shape;
 import org.tensorflow.DataType;
@@ -33,7 +33,7 @@ import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
-import static org.tensorflow.Type.*;
+import static org.tensorflow.Types.FLOAT;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
