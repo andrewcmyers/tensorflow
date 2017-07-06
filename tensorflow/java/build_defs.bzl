@@ -13,7 +13,7 @@ JAVA_VERSION_OPTS = [
 # Java source to improve code consistency.
 
 XLINT_OPTS = [
-    "-Werror",
+#   "-Werror",
     "-Xlint:all",
     "-Xlint:-serial",
     "-Xlint:-try",

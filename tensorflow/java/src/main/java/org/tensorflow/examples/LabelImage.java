@@ -25,6 +25,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.tensorflow.Types;
+import org.tensorflow.Types.TFFloat;
+import org.tensorflow.Types.TFInt32;
+import org.tensorflow.Types.TFString;
+import org.tensorflow.op.Tensors;
 import org.tensorflow.shapechecker.qual.scalar;
 import org.tensorflow.shapechecker.qual.shape;
 import org.tensorflow.DataType;
@@ -66,7 +70,7 @@ public class LabelImage {
         readAllLinesOrExit(Paths.get(modelDir, "imagenet_comp_graph_label_strings.txt"));
     byte[] imageBytes = readAllBytesOrExit(Paths.get(imageFile));
 
-    try (Tensor<Float> image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
+    try (Tensor<TFFloat> image = constructAndExecuteGraphToNormalizeImage(imageBytes)) {
       float[] labelProbabilities = executeInceptionGraph(graphDef, image);
       int bestLabelIdx = maxIndex(labelProbabilities);
       System.out.println(
@@ -76,7 +80,7 @@ public class LabelImage {
     }
   }
 
-  private static Tensor<Float> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
+  private static Tensor<TFFloat> constructAndExecuteGraphToNormalizeImage(byte[] imageBytes) {
     try (Graph g = new Graph()) {
       GraphBuilder b = new GraphBuilder(g);
       // Some constants specific to the pre-trained model at:
@@ -110,11 +114,11 @@ public class LabelImage {
     }
   }
 
-  private static float[] executeInceptionGraph(byte[] graphDef, Tensor<Float> image) {
+  private static float[] executeInceptionGraph(byte[] graphDef, Tensor<TFFloat> image) {
     try (Graph g = new Graph()) {
       g.importGraphDef(graphDef);
       try (Session s = new Session(g);
-          Tensor<Float> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(FLOAT)) {
+          Tensor<TFFloat> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(FLOAT)) {
         final long[] rshape = result.shape();
         if (result.numDimensions() != 2 || rshape[0] != 1) {
           throw new RuntimeException(
@@ -182,8 +186,8 @@ public class LabelImage {
       return binaryOp3("ExpandDims", input, dim);
     }
 
-    <T, U> @shape("value") Output<U> cast(Output<T> value, Type<U> type) {
-      DataType dtype = type.dataType();
+    <T, U> @shape("value") Output<U> cast(Output<T> value, Class<U> type) {
+      DataType dtype = Types.dataType(type);
       return g.opBuilder("Cast", "Cast").addInput(value).setAttr("DstT", dtype).build().output(0);
     }
 
@@ -195,17 +199,8 @@ public class LabelImage {
           .output(0);
     }
 
-    @shape("value") Output<Byte> byteConstant(String name, byte[] value) {
-        try (Tensor<Byte> t = Tensor.create(value, UINT8)) {
-          return g.opBuilder("Const", name)
-              .setAttr("dtype", t.dataType())
-              .setAttr("value", t)
-              .build()
-              .output(0);
-        }
-      }
     @scalar Output<String> stringConstant(String name, byte[] value) {
-      try (Tensor<String> t = Tensor.create(value, STRING)) {
+      try (Tensor<TFString> t = Tensor.create(value)) {
         return g.opBuilder("Const", name)
             .setAttr("dtype", t.dataType())
             .setAttr("value", t)
@@ -214,7 +209,7 @@ public class LabelImage {
       }
     }
     @scalar Output<Integer> constant(String name, int value) {
-        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
+        try (Tensor<TFInt32> t = Tensors.create(value)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -223,7 +218,7 @@ public class LabelImage {
         }
       }
     @shape("value") Output<Integer> constant(String name, int[] value) {
-        try (Tensor<Integer> t = Tensor.create(value, INT32)) {
+        try (Tensor<TFInt32> t = Tensors.create(value)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -232,7 +227,7 @@ public class LabelImage {
         }
       }
     @scalar Output<Float> constant(String name, float value) {
-        try (Tensor<Float> t = Tensor.create(value, FLOAT)) {
+        try (Tensor<TFFloat> t = Tensors.create(value)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.FLOAT)
               .setAttr("value", t)

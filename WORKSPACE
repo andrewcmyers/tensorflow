@@ -67,3 +67,10 @@ new_http_archive(
         "http://download.tensorflow.org/models/stylize_v1.zip",
     ],
 )
+
+maven_jar(
+    name = "checkerframework",
+    artifact = "org.checkerframework:checker:2.1.13",
+    sha1 = "7dec3e2016dd30b9217cad708d6600b649092e35"
+)
+

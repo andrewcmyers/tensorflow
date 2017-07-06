@@ -8,15 +8,33 @@ licenses(["notice"])  # Apache 2.0
 load("build_defs", "JAVACOPTS")
 
 java_library(
+    name = "tensorflow_unchecked",
+    srcs = [
+        ":java_op_sources",
+        ":java_sources",
+        ":shapechecker_sources",
+        ":create_Types",
+        ":create_Tensor",
+        ":create_Tensors",
+    ],
+    javacopts = JAVACOPTS,
+    deps = ["@checkerframework//jar"],
+    visibility = ["//visibility:public"],
+)
+
+java_library(
     name = "tensorflow",
     srcs = [
         ":java_op_sources",
         ":java_sources",
+        ":shapechecker_sources",
         ":create_Types",
         ":create_Tensor",
-        ":create_Tensors"
+        ":create_Tensors",
     ],
-    data = [":libtensorflow_jni"],
+    plugins = [":shapechecker"],
+    deps = ["@checkerframework//jar"],
+#   data = [":libtensorflow_jni"],
     javacopts = JAVACOPTS,
     visibility = ["//visibility:public"],
 )
@@ -33,6 +51,12 @@ filegroup(
 )
 
 filegroup(
+    name = "shapechecker_sources",
+    srcs = glob(["src/main/java/org/tensorflow/shapechecker/*.java",
+                 "src/main/java/org/tensorflow/shapechecker/qual/*.java"])
+)
+
+filegroup(
     name = "java_op_sources",
     srcs = glob(["src/main/java/org/tensorflow/op/*.java"]),
     visibility = [
@@ -45,6 +69,7 @@ java_library(
     testonly = 1,
     srcs = ["src/test/java/org/tensorflow/TestUtil.java"],
     javacopts = JAVACOPTS,
+    plugins = [":shapechecker"],
     deps = [":tensorflow"],
 )
 
@@ -263,4 +288,10 @@ genrule(
     srcs = glob(["**/Tensors.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
     outs = ["tensorflow/java/src/main/java/org/tensorflow/op/Tensors.java"],
     cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/main/tmpl/tftypes.pl -c tensorflow/java/src/main/tmpl/tftypes.csv tensorflow/java/src/main/java/org/tensorflow/op/Tensors.tmpl > \"$@\"",
+)
+
+java_plugin(
+    name = "shapechecker",
+    srcs = [":shapechecker_sources"],
+    deps = ["@checkerframework//jar", "tensorflow_unchecked"]
 )

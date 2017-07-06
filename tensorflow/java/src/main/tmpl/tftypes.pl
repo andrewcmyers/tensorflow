@@ -3,6 +3,9 @@ my $count;
 
 my $option = '-t', my $template;
 
+# Maximum number of dimensions for which helper creator methods will be generated.
+my $max_array_dim = 6;
+
 sub usage {
     print "Usage: tftypes [-ctdT] <type desc file> <tmpl file>\n\n"
          ."This script generates parts of various .java files that depend on which"
@@ -77,7 +80,7 @@ for (my $i = 1; $i <= $#info; $i++) {
     } elsif ($option eq '-c') { # creators
       # Generate creator declarations for Tensors.java
       if ($jtype ne '' && $creat eq 'y') {
-        for (my $brackets = ''; length $brackets <= 12; $brackets .= '[]') {
+        for (my $brackets = ''; length $brackets <= 2*$max_array_dim; $brackets .= '[]') {
             $typeinfo .=
                 "  public static Tensor<$tfname> create($jtype$brackets data) {\n"
                ."    return Tensor.create(data, $ucname);\n"

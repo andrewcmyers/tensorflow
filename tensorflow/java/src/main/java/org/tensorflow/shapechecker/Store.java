@@ -8,16 +8,4 @@ public class Store extends CFAbstractStore<ShapeValue, Store> {
 		super(other);
 	}
 
-	@Override
-	public boolean hasDOToutput() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public String toDOToutput() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }
