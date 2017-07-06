@@ -36,10 +36,10 @@ import java.util.Arrays;
  *
  * <p><b>WARNING:</b> Resources consumed by the Tensor object <b>must</b> be explicitly freed by
  * invoking the {@link #close()} method when the object is no longer needed. For example, using a
- * try-with-resources block, like:
+ * try-with-resources block:
  *
  * <pre>{@code
- * try(Tensor t = Tensor.create(...)) {
+ * try (Tensor t = Tensor.create(...)) {
  *   doSomethingWith(t);
  * }
  * }</pre>
@@ -50,7 +50,7 @@ public final class Tensor<T> implements AutoCloseable {
    * Create a Tensor from a Java object.
    *
    * <p>A Tensor is a multi-dimensional array of elements of a limited set of types ({@link
-   * DataType}). Thus, not all Java objects can be converted to a Tensor. In particular, {@code obj}
+   * Types}). Thus, not all Java objects can be converted to a Tensor. In particular, {@code obj}
    * must be either a primitive (float, double, int, long, boolean) or a multi-dimensional array of
    * one of those primitives. For example:
    *
@@ -563,6 +563,11 @@ public final class Tensor<T> implements AutoCloseable {
     throw new IllegalArgumentException("DataType " + dataType + " is not supported yet");
   }
 
+  /**
+   * The default TensorFlow data type that Java object o corresponds to. Some Java objects
+   * represent more than one TensorFlow data type; for example, 'byte' corresponds
+   * to both {@code uint8} and {@code string}, with the latter being the default interpretation.
+   */
   private static DataType dataTypeOf(Object o) {
     if (o.getClass().isArray()) {
       if (Array.getLength(o) == 0) {
