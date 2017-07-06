@@ -564,6 +564,11 @@ public final class Tensor<T> implements AutoCloseable {
     throw new IllegalArgumentException("DataType " + dataType + " is not supported yet");
   }
 
+  /**
+   * The default TensorFlow data type that Java object o corresponds to. Some Java objects
+   * represent more than one TensorFlow data type; for example, 'byte' corresponds
+   * to both {@code uint8} and {@code string}, with the latter being the default interpretation.
+   */
   private static DataType dataTypeOf(Object o) {
     if (o.getClass().isArray()) {
       if (Array.getLength(o) == 0) {
