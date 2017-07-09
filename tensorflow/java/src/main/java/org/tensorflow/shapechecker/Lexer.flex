@@ -12,7 +12,7 @@ import java_cup.runtime.Symbol;
 
 %{
     void print() {
-	System.err.println("Saw token: " + yytext());
+//	System.err.println("Saw token: " + yytext());
     }
 
     static class IntLiteral extends Symbol implements DimOrId {

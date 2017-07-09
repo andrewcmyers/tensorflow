@@ -14,7 +14,7 @@ parser code {:
   }
 
     static Dimensions parseDimensions(String s) {
-        System.err.println("XXX making dimensions from " + s);
+        //System.err.println("XXX making dimensions from " + s);
         StringReader ss = new StringReader(s);
         ShapeParser p = new ShapeParser(new Lexer(ss));
         Symbol sy = null;
@@ -23,7 +23,7 @@ parser code {:
         } catch (Exception e) {
             throw new Error("parse failed: " + e.getMessage());
         }
-        System.err.println("Dimensions parsed: " + p.output);
+        //System.err.println("Dimensions parsed: " + p.output);
         return p.output;
 
     }
@@ -58,7 +58,7 @@ dimensions ::= dimensions:dd COMMA dimension:d
             ;
 
 dimension ::= ID:id
-                {: RESULT = id; System.err.println("saw id " + id); :}
+                {: RESULT = id; :}
            |  NUMBER:n
-                {: RESULT = n; System.err.println("saw num " + n); :}
+                {: RESULT = n; :}
            ;

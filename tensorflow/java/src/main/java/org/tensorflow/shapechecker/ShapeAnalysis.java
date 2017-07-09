@@ -18,7 +18,7 @@ public class ShapeAnalysis extends CFAbstractAnalysis<ShapeValue, ShapeStore, Sh
 	    ShapeAnnotatedTypeFactory factory,
 	    List<Pair<VariableElement, ShapeValue>> fieldValues) {
 		super(checker, factory, fieldValues);
-		System.err.println("XXX Created ShapeAnalysis");
+		// System.err.println("XXX Created ShapeAnalysis ");
 	}
 
 	@Override

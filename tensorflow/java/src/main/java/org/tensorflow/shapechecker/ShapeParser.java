@@ -126,7 +126,7 @@ public class ShapeParser
   }
 
     static Dimensions parseDimensions(String s) {
-        System.err.println("XXX making dimensions from " + s);
+        //System.err.println("XXX making dimensions from " + s);
         StringReader ss = new StringReader(s);
         ShapeParser p = new ShapeParser(new Lexer(ss));
         Symbol sy = null;
@@ -135,7 +135,7 @@ public class ShapeParser
         } catch (Exception e) {
             throw new Error("parse failed: " + e.getMessage());
         }
-        System.err.println("Dimensions parsed: " + p.output);
+        //System.err.println("Dimensions parsed: " + p.output);
         return p.output;
 
     }
@@ -243,7 +243,7 @@ class CUP$ShapeParser$actions {
                 int idleft = CUP$ShapeParser$stack.peek().left;
                 int idright = CUP$ShapeParser$stack.peek().right;
                 DimOrId id = CUP$ShapeParser$stack.peek().<DimOrId> value();
-                 RESULT = id; System.err.println("saw id " + id); 
+                 RESULT = id; 
                 CUP$ShapeParser$result = parser.getSymbolFactory().newSymbol("dimension",3, CUP$ShapeParser$stack.peek(), CUP$ShapeParser$stack.peek(), RESULT);
             }
             return CUP$ShapeParser$result;
@@ -255,7 +255,7 @@ class CUP$ShapeParser$actions {
                 int nleft = CUP$ShapeParser$stack.peek().left;
                 int nright = CUP$ShapeParser$stack.peek().right;
                 DimOrId n = CUP$ShapeParser$stack.peek().<DimOrId> value();
-                 RESULT = n; System.err.println("saw num " + n); 
+                 RESULT = n; 
                 CUP$ShapeParser$result = parser.getSymbolFactory().newSymbol("dimension",3, CUP$ShapeParser$stack.peek(), CUP$ShapeParser$stack.peek(), RESULT);
             }
             return CUP$ShapeParser$result;
