@@ -6,7 +6,7 @@
 # https://github.com/bazelbuild/bazel/blob/6c1106b1a721516d3b3db54d2e1c31b44a76fbb1/src/main/java/com/google/devtools/build/lib/bazel/rules/android/BazelAndroidSemantics.java#L73
 
 JAVA_VERSION_OPTS = [
-    "-source 7 -target 7",
+    "-source 8 -target 8",
 ]
 
 # A more robust set of lint and errorprone checks when building
@@ -104,7 +104,7 @@ EP_DISABLED_CHECKS = [
     "-Xep:ClassName:ERROR",
     "-Xep:ComparisonContractViolated:ERROR",
     "-Xep:ConstantField:ERROR",
-    "-Xep:ConstructorInvokesOverridable:ERROR",
+#   "-Xep:ConstructorInvokesOverridable:ERROR",
     # False positives, disabled
     # "-Xep:ConstructorLeaksThis:ERROR",
     "-Xep:DepAnn:ERROR",

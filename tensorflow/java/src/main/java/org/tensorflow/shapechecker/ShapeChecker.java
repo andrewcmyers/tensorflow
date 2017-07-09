@@ -6,5 +6,4 @@ import org.tensorflow.Tensor;
 
 @RelevantJavaTypes({Tensor.class, Output.class})
 public class ShapeChecker extends BaseTypeChecker {
-
 }

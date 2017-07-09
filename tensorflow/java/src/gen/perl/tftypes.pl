@@ -81,8 +81,14 @@ for (my $i = 1; $i <= $#info; $i++) {
       # Generate creator declarations for Tensors.java
       if ($jtype ne '' && $creat eq 'y') {
         for (my $brackets = ''; length $brackets <= 2*$max_array_dim; $brackets .= '[]') {
+            my $shape;
+            if ($brackets eq '') {
+                $shape = '@scalar'
+            } else {
+                $shape = '@shape("data")'
+            }
             $typeinfo .=
-                "  public static Tensor<$tfname> create($jtype$brackets data) {\n"
+                "  public static $shape Tensor<$tfname> create($jtype$brackets data) {\n"
                ."    return Tensor.create(data, $ucname);\n"
                ."  }\n";
         }

@@ -13,9 +13,7 @@ java_library(
         ":java_op_sources",
         ":java_sources",
         ":shapechecker_sources",
-        ":create_Types",
-        ":create_Tensor",
-        ":create_Tensors",
+        ":generated_source"
     ],
     javacopts = JAVACOPTS,
     deps = ["@checkerframework//jar"],
@@ -28,14 +26,13 @@ java_library(
         ":java_op_sources",
         ":java_sources",
         ":shapechecker_sources",
-        ":create_Types",
-        ":create_Tensor",
-        ":create_Tensors",
+        ":generated_source"
     ],
     plugins = [":shapechecker"],
     deps = ["@checkerframework//jar"],
+    exported_plugins = ["shapechecker"],
 #   data = [":libtensorflow_jni"],
-    javacopts = JAVACOPTS,
+    javacopts = JAVACOPTS + ["-AprintErrorStack"],
     visibility = ["//visibility:public"],
 )
 
@@ -52,8 +49,7 @@ filegroup(
 
 filegroup(
     name = "shapechecker_sources",
-    srcs = glob(["src/main/java/org/tensorflow/shapechecker/*.java",
-                 "src/main/java/org/tensorflow/shapechecker/qual/*.java"])
+    srcs = glob(["**/main/**/shapechecker/**/*.java"])
 )
 
 filegroup(
@@ -79,6 +75,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/GraphTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.GraphTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -92,6 +89,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/OperationBuilderTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.OperationBuilderTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -105,6 +103,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/OperationTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.OperationTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -119,6 +118,7 @@ java_test(
     data = ["//tensorflow/cc/saved_model:saved_model_half_plus_two"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.SavedModelBundleTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -132,6 +132,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/SessionTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.SessionTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -145,6 +146,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/ShapeTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.ShapeTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -158,6 +160,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/TensorFlowTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.TensorFlowTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         "@junit",
@@ -170,6 +173,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/TensorTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.TensorTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -183,6 +187,7 @@ java_test(
     srcs = ["src/test/java/org/tensorflow/op/ScopeTest.java"],
     javacopts = JAVACOPTS,
     test_class = "org.tensorflow.op.ScopeTest",
+    plugins = [":shapechecker"],
     deps = [
         ":tensorflow",
         ":testutil",
@@ -269,29 +274,37 @@ filegroup(
     visibility = ["//tensorflow:__subpackages__"],
 )
 
+filegroup(
+    name = "generated_source",
+    srcs = [ "tensorflow/java/src/main/java/org/tensorflow/Types.java",
+             "tensorflow/java/src/main/java/org/tensorflow/Tensor.java",
+             "tensorflow/java/src/main/java/org/tensorflow/op/Tensors.java" ]
+)
+
 genrule(
     name = "create_Types",
-    srcs = glob(["**/Types.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
+    srcs = glob(["**/Types.java.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
     outs = ["tensorflow/java/src/main/java/org/tensorflow/Types.java"],
     cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/gen/perl/tftypes.pl -t tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/Types.java.tmpl > \"$@\""
 )
 
 genrule(
     name = "create_Tensor",
-    srcs = glob(["**/Tensor.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
+    srcs = glob(["**/Tensor.java.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
     outs = ["tensorflow/java/src/main/java/org/tensorflow/Tensor.java"],
     cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/gen/perl/tftypes.pl -T tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/Tensor.java.tmpl > \"$@\"",
 )
 
 genrule(
     name = "create_Tensors",
-    srcs = glob(["**/Tensors.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
+    srcs = glob(["**/Tensors.java.tmpl", "**/tftypes.csv", "**/tftypes.pl"]),
     outs = ["tensorflow/java/src/main/java/org/tensorflow/op/Tensors.java"],
     cmd = "echo '...building $@' 2>&1; perl tensorflow/java/src/gen/perl/tftypes.pl -c tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/Tensors.java.tmpl > \"$@\"",
 )
 
 java_plugin(
-    name = "shapechecker",
-    srcs = [":shapechecker_sources"],
-    deps = ["@checkerframework//jar", "tensorflow_unchecked"]
+     name = "shapechecker",
+     processor_class = "org.tensorflow.shapechecker.ShapeChecker",
+    # srcs = [ ":shapechecker_sources" ],
+     deps = ["@checkerframework//jar", ":tensorflow_unchecked"],
 )

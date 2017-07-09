@@ -3,18 +3,15 @@ package org.tensorflow.shapechecker.qual;
 import static java.lang.annotation.ElementType.TYPE_PARAMETER;
 import static java.lang.annotation.ElementType.TYPE_USE;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.checkerframework.framework.qual.DefaultFor;
 import org.checkerframework.framework.qual.SubtypeOf;
+import org.checkerframework.framework.qual.TypeUseLocation;
 
-/**
- * A shape about which nothing is known statically. Root of the
- * qualifier hierarchy.
- */
-@Retention(RetentionPolicy.RUNTIME)
-@SubtypeOf({})
+@SubtypeOf({noshape.class, scalar.class, shape.class, shapeUnknown.class})
 @Target({TYPE_USE, TYPE_PARAMETER})
-public @interface anyshape {
+@DefaultFor(value = {TypeUseLocation.LOWER_BOUND})
+public @interface shapeBottom {
+
 }

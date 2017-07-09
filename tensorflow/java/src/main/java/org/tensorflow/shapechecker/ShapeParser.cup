@@ -1,0 +1,64 @@
+package org.tensorflow.shapechecker;
+
+import java.util.ArrayList;
+import java.util.List;
+import java_cup.runtime.Symbol;
+import java.io.StringReader;
+
+parser code {:
+  Lexer l;
+  Dimensions output;
+
+  public ShapeParser(Lexer l) {
+    this.l = l;
+  }
+
+    static Dimensions parseDimensions(String s) {
+        System.err.println("XXX making dimensions from " + s);
+        StringReader ss = new StringReader(s);
+        ShapeParser p = new ShapeParser(new Lexer(ss));
+        Symbol sy = null;
+        try {
+            sy = p.parse();
+        } catch (Exception e) {
+            throw new Error("parse failed: " + e.getMessage());
+        }
+        System.err.println("Dimensions parsed: " + p.output);
+        return p.output;
+
+    }
+:};
+
+scan with {: return l.nextToken(); :};
+
+terminal DimOrId ID;
+terminal COMMA;
+terminal DimOrId NUMBER;
+terminal SCALAR;
+
+non terminal Dimensions goal, shape;
+non terminal List<DimOrId> dimensions;
+non terminal DimOrId dimension;
+
+start with goal;
+
+goal ::= shape:s {: RESULT = output = s; :}
+      ;
+
+shape ::= dimensions:dd
+            {: RESULT = new Dimensions(dd); :}
+       |  SCALAR
+            {: RESULT = new Dimensions(); :}
+       ;
+
+dimensions ::= dimensions:dd COMMA dimension:d
+                  {: RESULT = dd; dd.add(d); :}
+            |  dimension:d
+                  {: RESULT = new ArrayList<DimOrId>(); RESULT.add(d); :}
+            ;
+
+dimension ::= ID:id
+                {: RESULT = id; System.err.println("saw id " + id); :}
+           |  NUMBER:n
+                {: RESULT = n; System.err.println("saw num " + n); :}
+           ;
