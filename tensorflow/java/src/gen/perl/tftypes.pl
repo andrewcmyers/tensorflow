@@ -52,7 +52,9 @@ while (<TYPEDESC>) {
 
 print "// GENERATED FILE. Edits to this file will be lost -- edit $tmpl instead.\n";
 
-for (my $i = 1; $i <= $#info; $i++) {
+my $first = 1;
+
+for (my $i = 1; $i <= $#info; $first = 0, $i++) {
     (my $name, my $index, my $jtype, my $jbox, my $creat, my $default, my $desc) =
         @{$info[$i]};
     my $tfname = "TF".$name;
@@ -74,6 +76,15 @@ for (my $i = 1; $i <= $#info; $i++) {
     } elsif ($option eq '-d') {
       # Generate datatype enums for DataType.java
       # TODO: implement
+      if ($jtype ne '') {
+        if (!$first) {
+            $typeinfo .= ",\n\n";
+        }
+        if ($desc ne '') {
+            $typeinfo .= "  /** $desc */\n";
+        }
+        $typeinfo .=   "  $ucname($index)";
+      }
     } elsif ($option eq '-c') { # creators
       # Generate creator declarations for Tensors.java
       if ($jtype ne '' && $creat eq 'y') {
