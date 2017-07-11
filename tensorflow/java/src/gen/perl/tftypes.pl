@@ -81,7 +81,7 @@ for (my $i = 1; $i <= $#info; $first = 0, $i++) {
             $typeinfo .= ",\n\n";
         }
         if ($desc ne '') {
-            $typeinfo .= "  /** $desc */\n";
+            $typeinfo .= "  /** $desc. */\n";
         }
         $typeinfo .=   "  $ucname($index)";
       }
