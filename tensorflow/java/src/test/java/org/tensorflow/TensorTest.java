@@ -31,16 +31,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.tensorflow.op.Tensors;
-import org.tensorflow.Types.TFFloat;
-import static org.tensorflow.Types.FLOAT;
-import org.tensorflow.Types.TFDouble;
-import static org.tensorflow.Types.DOUBLE;
-import org.tensorflow.Types.TFInt32;
-import org.tensorflow.Types.TFString;
-import static org.tensorflow.Types.STRING;
-import org.tensorflow.Types.TFInt64;
-import org.tensorflow.Types.TFBool;
-import static org.tensorflow.Types.BOOL;
+import org.tensorflow.types.TFFloat;
+import org.tensorflow.types.TFDouble;
+import org.tensorflow.types.TFInt32;
+import org.tensorflow.types.TFString;
+import org.tensorflow.types.TFInt64;
+import org.tensorflow.types.TFBool;
 
 /** Unit tests for {@link org.tensorflow.Tensor}. */
 @RunWith(JUnit4.class)
@@ -66,7 +62,7 @@ public class TensorTest {
 
     // validate creating a tensor using a byte buffer
     {
-      try (Tensor<TFBool> t = Tensor.create(Types.BOOL, bools_shape, ByteBuffer.wrap(bools_))) {
+      try (Tensor<TFBool> t = Tensor.create(TFBool.T, bools_shape, ByteBuffer.wrap(bools_))) {
         boolean[] actual = t.copyTo(new boolean[bools_.length]);
         for (int i = 0; i < bools.length; ++i) {
           assertEquals("" + i, bools[i], actual[i]);
@@ -74,7 +70,7 @@ public class TensorTest {
       }
 
       // note: the buffer is expected to contain raw TF_STRING (as per C API)
-      try (Tensor<TFString> t = Tensor.create(STRING, strings_shape, ByteBuffer.wrap(strings_))) {
+      try (Tensor<TFString> t = Tensor.create(TFString.T, strings_shape, ByteBuffer.wrap(strings_))) {
         assertArrayEquals(strings, t.bytesValue());
       }
     }
@@ -83,7 +79,7 @@ public class TensorTest {
     {
       ByteBuffer buf = ByteBuffer.allocateDirect(8 * doubles.length).order(ByteOrder.nativeOrder());
       buf.asDoubleBuffer().put(doubles);
-      try (Tensor<TFDouble> t = Tensor.create(DOUBLE, doubles_shape, buf)) {
+      try (Tensor<TFDouble> t = Tensor.create(TFDouble.T, doubles_shape, buf)) {
         double[] actual = new double[doubles.length];
         assertArrayEquals(doubles, t.copyTo(actual), EPSILON);
       }
@@ -91,7 +87,7 @@ public class TensorTest {
 
     // validate shape checking
     try (Tensor<TFBool> t =
-        Tensor.create(BOOL, new long[bools_.length * 2], ByteBuffer.wrap(bools_))) {
+        Tensor.create(TFBool.T, new long[bools_.length * 2], ByteBuffer.wrap(bools_))) {
       fail("should have failed on incompatible buffer");
     } catch (IllegalArgumentException e) {
       // expected
@@ -304,7 +300,7 @@ public class TensorTest {
 
   @Test
   public void scalars() {
-    try (Tensor<TFFloat> t = Tensor.create(2.718f, FLOAT)) {
+    try (Tensor<TFFloat> t = Tensor.create(2.718f, TFFloat.T)) {
       assertEquals(DataType.FLOAT, t.dataType());
       assertEquals(0, t.numDimensions());
       assertEquals(0, t.shape().length);

@@ -25,8 +25,11 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.util.Arrays;
-
-@IMPORTS@
+import org.tensorflow.types.Types;
+import org.tensorflow.types.TFInt32;
+import org.tensorflow.types.TFFloat;
+import org.tensorflow.types.TFDouble;
+import org.tensorflow.types.TFInt64;
 
 /**
  * A statically typed multi-dimensional array whose elements are of a type described by T.
@@ -102,6 +105,34 @@ public final class Tensor<T> implements AutoCloseable {
   	return create(obj, dataTypeOf(obj));
   }
   
+  /**
+   * Creates a tensor from an object.
+   * Requires the parameter {@code T} to match {@code type}, but this precondition is not
+   * checked. Use the class {@link org.tensorflow.Tensors} for methods that
+   * create Tensors in a fully type-safe way.
+   * @param obj the object supplying the tensor data. It type must be compatible with T.
+   * @param type the DataType representation of the type T
+   * @return the new tensor
+   */
+  static <T> Tensor<T> create(Object obj, DataType type) {
+	  Tensor<T> t = new Tensor<T>(type);
+    t.shapeCopy = new long[numDimensions(obj)];
+    fillShape(obj, 0, t.shapeCopy);
+    if (t.dtype != DataType.STRING) {
+      int byteSize = elemByteSize(t.dtype) * numElements(t.shapeCopy);
+      t.nativeHandle = allocate(t.dtype.c(), t.shapeCopy, byteSize);
+      setValue(t.nativeHandle, obj);
+    } else if (t.shapeCopy.length != 0) {
+      throw new UnsupportedOperationException(
+          String.format(
+              "non-scalar DataType.STRING tensors are not supported yet (version %s). Please file a feature request at https://github.com/tensorflow/tensorflow/issues/new",
+              TensorFlow.version()));
+    } else {
+      t.nativeHandle = allocateScalarBytes((byte[]) obj);
+    }
+    return t;
+  }
+
   /**
    * Create an {@link DataType#INT32} Tensor with data from the given buffer.
    *

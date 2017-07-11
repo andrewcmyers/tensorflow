@@ -77,17 +77,18 @@ for (my $i = 1; $i <= $#info; $first = 0, $i++) {
         # print STDERR "Creating $dirname/$tfname.java\n";
         open (CLASSFILE, ">$dirname/$tfname.java") || die "Can't open $tfname.java";
         print CLASSFILE "// GENERATED FILE. Edit tftypes.pl instead.\n";
+        print CLASSFILE "package org.tensorflow.types;\n\n";
         print CLASSFILE  "/** The class $tfname represents $desc. */\n"
-                        ."public class $tfname implements TFType {\n"
+                        ."public class $tfname implements Types.TFType {\n"
                         ."  /** Represents the type $tfname at run time. */\n"
                         ."  public static final Class<$tfname> T = $tfname.class;\n"
                         ."  static {\n"
-                        ."    Types.typeCodes.put($ucname, $index)\n"
+                        ."    Types.typeCodes.put($tfname.T, $index);\n"
                         ."  }\n";
         if ($default ne '') {
             print CLASSFILE
                          "  static {\n"
-                        ."    Types.scalars.put($ucname, $default);\n"
+                        ."    Types.scalars.put($tfname.T, $default);\n"
                         ."  }\n";
         }
         print CLASSFILE  "}\n";
@@ -110,19 +111,19 @@ for (my $i = 1; $i <= $#info; $first = 0, $i++) {
         for (my $brackets = ''; length $brackets <= 12; $brackets .= '[]') {
             $typeinfo .=
                 "  public static Tensor<$tfname> create($jtype$brackets data) {\n"
-               ."    return Tensor.create(data, $ucname);\n"
+               ."    return Tensor.create(data, $tfname.T);\n"
                ."  }\n";
         }
       }
       if ($text =~ m/\b$tfname\b/ || $creat eq 'y') {
-            $imports .= "import org.tensorflow.Types.$tfname;\n";
+            $imports .= "import org.tensorflow.types.$tfname;\n";
       }
-      if ($text =~ m/\b$ucname\b/ || $creat eq 'y') {
-            $imports .= "import static org.tensorflow.Types.$ucname;\n";
-      }
+      #if ($text =~ m/\b$ucname\b/ || $creat eq 'y') {
+      #  $imports .= "import static org.tensorflow.Types.$ucname;\n";
+      #}
     } elsif ($option eq '-T') { # Tensor.java
       if ($text =~ m/\b$tfname\b/) {
-            $imports .= "import org.tensorflow.Types.$tfname;\n";
+            $imports .= "import org.tensorflow.types.$tfname;\n";
       }
     }
 }

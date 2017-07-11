@@ -10,10 +10,6 @@ load("build_defs", "JAVACOPTS")
 java_library(
     name = "tensorflow",
     srcs = [
-        ":create_DataType",
-        ":create_Tensor",
-        ":create_Tensors",
-        ":create_Types",
         ":java_op_sources",
         ":java_sources",
     ],
@@ -26,7 +22,9 @@ java_library(
 # .aar. At some point, might make sense for a .aar rule here instead.
 filegroup(
     name = "java_sources",
-    srcs = glob(["src/main/java/org/tensorflow/*.java"]),
+    srcs = glob(["src/main/java/org/tensorflow/*.java",
+                 "src/main/java/org/tensorflow/types/*.java",
+    ]),
     visibility = [
         "//tensorflow/contrib/android:__pkg__",
         "//tensorflow/java:__pkg__",
@@ -243,48 +241,4 @@ filegroup(
         ],
     ),
     visibility = ["//tensorflow:__subpackages__"],
-)
-
-genrule(
-    name = "create_Types",
-    srcs = glob([
-        "**/Types.java.tmpl",
-        "**/tftypes.csv",
-        "**/tftypes.pl",
-    ]),
-    outs = ["tensorflow/java/src/main/java/org/tensorflow/Types.java"],
-    cmd = "perl tensorflow/java/src/gen/perl/tftypes.pl -t tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/Types.java.tmpl > \"$@\"",
-)
-
-genrule(
-    name = "create_Tensor",
-    srcs = glob([
-        "**/Tensor.java.tmpl",
-        "**/tftypes.csv",
-        "**/tftypes.pl",
-    ]),
-    outs = ["tensorflow/java/src/main/java/org/tensorflow/Tensor.java"],
-    cmd = "perl tensorflow/java/src/gen/perl/tftypes.pl -T tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/Tensor.java.tmpl > \"$@\"",
-)
-
-genrule(
-    name = "create_Tensors",
-    srcs = glob([
-        "**/Tensors.java.tmpl",
-        "**/tftypes.csv",
-        "**/tftypes.pl",
-    ]),
-    outs = ["tensorflow/java/src/main/java/org/tensorflow/op/Tensors.java"],
-    cmd = "perl tensorflow/java/src/gen/perl/tftypes.pl -c tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/Tensors.java.tmpl > \"$@\"",
-)
-
-genrule(
-    name = "create_DataType",
-    srcs = glob([
-        "**/DataType.java.tmpl",
-        "**/tftypes.csv",
-        "**/tftypes.pl",
-    ]),
-    outs = ["tensorflow/java/src/main/java/org/tensorflow/DataType.java"],
-    cmd = "perl tensorflow/java/src/gen/perl/tftypes.pl -d tensorflow/java/src/gen/resources/tftypes.csv tensorflow/java/src/gen/resources/DataType.java.tmpl > \"$@\"",
 )

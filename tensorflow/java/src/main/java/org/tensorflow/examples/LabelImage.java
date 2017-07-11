@@ -29,14 +29,11 @@ import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
 import org.tensorflow.TensorFlow;
-import org.tensorflow.Types;
-import org.tensorflow.Types.TFInt32;
-import org.tensorflow.Types.TFUInt8;
-import org.tensorflow.Types.TFFloat;
-import org.tensorflow.Types.TFString;
-import static org.tensorflow.Types.INT32;
-import static org.tensorflow.Types.FLOAT;
-import static org.tensorflow.Types.STRING;
+import org.tensorflow.types.Types;
+import org.tensorflow.types.TFInt32;
+import org.tensorflow.types.TFUInt8;
+import org.tensorflow.types.TFFloat;
+import org.tensorflow.types.TFString;
 
 /** Sample use of the TensorFlow Java API to label images using a pre-trained model. */
 public class LabelImage {
@@ -101,13 +98,13 @@ public class LabelImage {
               b.sub(
                   b.resizeBilinear(
                       b.expandDims(
-                          b.cast(b.decodeJpeg(input, 3), FLOAT),
+                          b.cast(b.decodeJpeg(input, 3), TFFloat.T),
                           b.constant("make_batch", 0)),
                       b.constant("size", new int[] {H, W})),
                   b.constant("mean", mean)),
               b.constant("scale", scale));
       try (Session s = new Session(g)) {
-        return s.runner().fetch(output.op().name()).run().get(0).expect(FLOAT);
+        return s.runner().fetch(output.op().name()).run().get(0).expect(TFFloat.T);
       }
     }
   }
@@ -116,7 +113,7 @@ public class LabelImage {
     try (Graph g = new Graph()) {
       g.importGraphDef(graphDef);
       try (Session s = new Session(g);
-          Tensor<TFFloat> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(FLOAT)) {
+          Tensor<TFFloat> result = s.runner().feed("input", image).fetch("output").run().get(0).expect(TFFloat.T)) {
         final long[] rshape = result.shape();
         if (result.numDimensions() != 2 || rshape[0] != 1) {
           throw new RuntimeException(
@@ -208,7 +205,7 @@ public class LabelImage {
     }
   
     Output<TFString> stringConstant(String name, byte[] value) {
-      try (Tensor<TFString> t = Tensor.create(value, STRING)) {
+      try (Tensor<TFString> t = Tensor.create(value, TFString.T)) {
         return g.opBuilder("Const", name)
             .setAttr("dtype", t.dataType())
             .setAttr("value", t)
@@ -217,7 +214,7 @@ public class LabelImage {
       }
     }
     Output<TFInt32> constant(String name, int value) {
-        try (Tensor<TFInt32> t = Tensor.create(value, INT32)) {
+        try (Tensor<TFInt32> t = Tensor.create(value, TFInt32.T)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -226,7 +223,7 @@ public class LabelImage {
         }
       }
     Output<TFInt32> constant(String name, int[] value) {
-        try (Tensor<TFInt32> t = Tensor.create(value, INT32)) {
+        try (Tensor<TFInt32> t = Tensor.create(value, TFInt32.T)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.INT32)
               .setAttr("value", t)
@@ -235,7 +232,7 @@ public class LabelImage {
         }
       }
     Output<TFFloat> constant(String name, float value) {
-        try (Tensor<TFFloat> t = Tensor.create(value, FLOAT)) {
+        try (Tensor<TFFloat> t = Tensor.create(value, TFFloat.T)) {
           return g.opBuilder("Const", name)
               .setAttr("dtype", DataType.FLOAT)
               .setAttr("value", t)

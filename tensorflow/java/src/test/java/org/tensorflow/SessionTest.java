@@ -26,7 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.tensorflow.op.Tensors;
-import org.tensorflow.Types.TFInt32;
+import org.tensorflow.types.TFInt32;
 
 /** Unit tests for {@link org.tensorflow.Session}. */
 @RunWith(JUnit4.class)
@@ -85,9 +85,9 @@ public class SessionTest {
         assertArrayEquals(expected, fetched.copyTo(new int[2]));
       }
       // Feed using colon separated names.
-      try (Tensor<TFInt32> fed = Tensor.create(new int[] {4, 3, 2, 1}, Types.INT32);
+      try (Tensor<TFInt32> fed = Tensor.create(new int[] {4, 3, 2, 1}, TFInt32.T);
           Tensor<TFInt32> fetched =
-              s.runner().feed("Split:0", fed).feed("Split:1", fed).fetch("Add").run().get(0).expect(Types.INT32)) {
+              s.runner().feed("Split:0", fed).feed("Split:1", fed).fetch("Add").run().get(0).expect(TFInt32.T)) {
         final int[] expected = {8, 6, 4, 2};
         assertArrayEquals(expected, fetched.copyTo(new int[4]));
       }

@@ -17,7 +17,30 @@ package org.tensorflow;
 
 /** Type of elements in a {@link Tensor}. */
 public enum DataType {
-@TYPEINFO@;
+  /** 32-bit single precision floating point. */
+  FLOAT(1),
+
+  /** 64-bit double precision floating point. */
+  DOUBLE(2),
+
+  /** 32-bit signed integer. */
+  INT32(3),
+
+  /** 8-bit unsigned integer. */
+  UINT8(4),
+
+  /**
+   * A sequence of bytes.
+   *
+   * <p>TensorFlow uses the STRING type for an arbitrary sequence of bytes.
+   */
+  STRING(7),
+
+  /** 64-bit signed integer. */
+  INT64(9),
+
+  /** Boolean. */
+  BOOL(10);
 
   private final int value;
 
@@ -31,10 +54,10 @@ public enum DataType {
     return value;
   }
   
-  // Cached to avoid copying it all the time.
+  // Cached to avoid copying it
   final private static DataType[] values = values();
 
-  static DataType fromC(int c) {
+  public static DataType fromC(int c) {
     for (DataType t : values) {
       if (t.value == c)
         return t;

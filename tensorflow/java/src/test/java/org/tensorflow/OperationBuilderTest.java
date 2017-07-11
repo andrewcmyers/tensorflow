@@ -24,8 +24,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.tensorflow.op.Tensors;
-import org.tensorflow.Types.TFInt32;
-import org.tensorflow.Types.TFBool;
+import org.tensorflow.types.TFInt32;
+import org.tensorflow.types.TFBool;
 
 /** Unit tests for {@link org.tensorflow.OperationBuilder}. */
 @RunWith(JUnit4.class)
@@ -157,7 +157,7 @@ public class OperationBuilderTest {
         Session s = new Session(g);
         Tensor<TFBool> yes = Tensors.create(true);
         Tensor<TFBool> no = Tensors.create(false)) {
-      Output<TFBool> placeholder = TestUtil.placeholder(g, "boolean", Types.BOOL);
+      Output<TFBool> placeholder = TestUtil.placeholder(g, "boolean", TFBool.T);
       Operation check =
           g.opBuilder("Assert", "assert")
               .addInput(placeholder)

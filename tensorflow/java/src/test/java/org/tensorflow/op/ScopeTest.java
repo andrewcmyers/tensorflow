@@ -26,9 +26,8 @@ import org.tensorflow.Graph;
 import org.tensorflow.Output;
 import org.tensorflow.Session;
 import org.tensorflow.Tensor;
-import org.tensorflow.Types;
-import org.tensorflow.Types.TFInt32;
-import static org.tensorflow.Types.INT32;
+import org.tensorflow.types.Types;
+import org.tensorflow.types.TFInt32;
 
 /** Unit tests for {@link org.tensorflow.Scope}. */
 @RunWith(JUnit4.class)
@@ -154,7 +153,7 @@ public class ScopeTest {
       Output<TFInt32> data = Const.create(s.withName("data"), new int[] {600, 470, 170, 430, 300}).output();
 
       // Create a composite op with a customized name
-      Variance<TFInt32> var1 = Variance.create(s.withName("example"), data, INT32);
+      Variance<TFInt32> var1 = Variance.create(s.withName("example"), data, TFInt32.T);
       assertEquals("example/variance", var1.output().op().name());
 
       // Confirm internally added ops have the right names.
@@ -163,7 +162,7 @@ public class ScopeTest {
       //assertNotNull(g.operation("example/zero"));
 
       // Same composite op with a default name
-      Variance<TFInt32> var2 = Variance.create(s, data, INT32);
+      Variance<TFInt32> var2 = Variance.create(s, data, TFInt32.T);
       assertEquals("variance/variance", var2.output().op().name());
 
       // Confirm internally added ops have the right names.
@@ -172,9 +171,9 @@ public class ScopeTest {
       //assertNotNull(g.operation("variance/zero"));
 
       // Verify correct results as well.
-      Tensor<TFInt32> result = sess.runner().fetch(var1.output()).run().get(0).expect(INT32);
+      Tensor<TFInt32> result = sess.runner().fetch(var1.output()).run().get(0).expect(TFInt32.T);
       assertEquals(21704, result.intValue());
-      result = sess.runner().fetch(var2.output()).run().get(0).expect(INT32);
+      result = sess.runner().fetch(var2.output()).run().get(0).expect(TFInt32.T);
       assertEquals(21704, result.intValue());
     }
   }

@@ -27,7 +27,7 @@ import java.util.Set;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.tensorflow.Types.TFInt32;
+import org.tensorflow.types.TFInt32;
 
 /** Unit tests for {@link org.tensorflow.Operation}. */
 @RunWith(JUnit4.class)

@@ -1,18 +1,19 @@
-package org.tensorflow;
+package org.tensorflow.types;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.tensorflow.DataType;
 
 /**
  * Utility class for representing TF types as Java types. For each TF type (e.g., int32),
  * there is a corresponding Java type (e.g., TFInt32) that represents it at compile time
- * and a corresponding object (e.g., INT32) that represents it at run time.
+ * and a corresponding immutable object (e.g., TFInt32.T) that represents it at run time.
  */
 public class Types {
 
   private Types() {} // not instantiable
 
-  private static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
+  static final Map<Class<?>, Integer> typeCodes = new HashMap<>();
   /** Convert to the equivalent DataType. */
 
   public static DataType dataType(Class<?> c) {
@@ -23,7 +24,7 @@ public class Types {
     return DataType.fromC(code.intValue());
   }
 
-  private static final Map<Class<?>, Object> scalars = new HashMap<>();
+  static final Map<Class<?>, Object> scalars = new HashMap<>();
 
   public static Object defaultScalar(Class<?> c) {
     return scalars.get(c);
@@ -32,9 +33,5 @@ public class Types {
   /**
    * A marker interface for classes representing Tensorflow types.
    */
-  interface TFType {}
-
-  // The following classes represent Tensorflow types when used as type parameters to
-  // types such as Tensor and Output.
-@TYPEINFO@
+  public interface TFType {}
 }

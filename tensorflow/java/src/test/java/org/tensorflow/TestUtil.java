@@ -17,8 +17,9 @@ package org.tensorflow;
 
 import java.lang.reflect.Array;
 
-import static org.tensorflow.Types.INT32;
-import org.tensorflow.Types.TFInt32;
+import org.tensorflow.types.Types;
+import org.tensorflow.types.TFInt32;
+
 import org.tensorflow.op.Tensors;
 /** Static utility functions. */
 public class TestUtil {
@@ -84,7 +85,7 @@ public class TestUtil {
   }
 
   public static void transpose_A_times_X(Graph g, int[][] a) {
-    matmul(g, "Y", constant(g, "A", a), placeholder(g, "X", INT32), true, false);
+    matmul(g, "Y", constant(g, "A", a), placeholder(g, "X", TFInt32.T), true, false);
   }
 
   /**
