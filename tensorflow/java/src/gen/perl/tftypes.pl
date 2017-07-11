@@ -1,3 +1,5 @@
+#!/usr/bin/perl
+
 use strict;
 my $count;
 
@@ -9,7 +11,12 @@ sub usage {
          ."TensorFlow types are supported by the Java API and how much. For each"
          ."such .java file, there is a .tmpl file in the same source directory in"
          ."which the strings \@TYPEINFO\@ and \@IMPORTS\@ are replaced with"
-         ."appropriate Java code. Output code is sent to standard output.\n";
+         ."appropriate Java code. Output code is sent to standard output.\n\n";
+
+    print "Modulo putting in the correct directory names, it can be invoked as follows:\n";
+    print "tftypes -c tftypes.csv Tensors.java.tmpl > Tensors.java\n";
+    print "tftypes -d tftypes.csv DataType.java.tmpl > DataType.java\n";
+    print "tftypes -t tftypes.csv <dir>                                   [outputs files to dir]\n";
 }
 
 if ($ARGV[0] =~ m/^-/) {
@@ -17,6 +24,12 @@ if ($ARGV[0] =~ m/^-/) {
 }
 my $typedesc = shift;
 my $tmpl = shift;
+
+my $dirname;
+
+if ($option eq '-t') {
+    $dirname = $tmpl;
+}
 
 open (TMPL, "<$tmpl") || die "Cannot open $tmpl for reading\n";
 
@@ -50,8 +63,6 @@ while (<TYPEDESC>) {
     push @info, [$name, $index, $jtype, $jbox, $creat, $default, $desc];
 }
 
-print "// GENERATED FILE. Edits to this file will be lost -- edit $tmpl instead.\n";
-
 my $first = 1;
 
 for (my $i = 1; $i <= $#info; $first = 0, $i++) {
@@ -61,18 +72,26 @@ for (my $i = 1; $i <= $#info; $first = 0, $i++) {
     my $ucname = uc $name;
 
     if ($option eq '-t') {
-        # Generate type declarations for Types.java
-        if (defined($desc) && $desc ne '') {
-            $typeinfo .=
-"  // $desc\n";
-        }
-        $typeinfo .= "  public static class $tfname implements TFType {}\n"
-                    ."  public static final Class<$tfname> $ucname = $tfname.class;\n"
-                    ."  static { typeCodes.put($ucname, $index); }";
+        if ($jtype eq '') { next }
+        # Generate class declarations
+        # print STDERR "Creating $dirname/$tfname.java\n";
+        open (CLASSFILE, ">$dirname/$tfname.java") || die "Can't open $tfname.java";
+        print CLASSFILE "// GENERATED FILE. Edit tftypes.pl instead.\n";
+        print CLASSFILE  "/** The class $tfname represents $desc. */\n"
+                        ."public class $tfname implements TFType {\n"
+                        ."  /** Represents the type $tfname at run time. */\n"
+                        ."  public static final Class<$tfname> T = $tfname.class;\n"
+                        ."  static {\n"
+                        ."    Types.typeCodes.put($ucname, $index)\n"
+                        ."  }\n";
         if ($default ne '') {
-            $typeinfo .= "  static { scalars.put($ucname, $default); }\n";
+            print CLASSFILE
+                         "  static {\n"
+                        ."    Types.scalars.put($ucname, $default);\n"
+                        ."  }\n";
         }
-        $typeinfo .= "\n";
+        print CLASSFILE  "}\n";
+        close(CLASSFILE);
     } elsif ($option eq '-d') {
       # Generate datatype enums for DataType.java
       # TODO: implement
@@ -105,13 +124,14 @@ for (my $i = 1; $i <= $#info; $first = 0, $i++) {
       if ($text =~ m/\b$tfname\b/) {
             $imports .= "import org.tensorflow.Types.$tfname;\n";
       }
-#     if ($text =~ m/\b$ucname\b/) {
-#           $imports .= "import static org.tensorflow.Types.$ucname;\n";
-#     }
     }
 }
 
-$text =~ s/\@TYPEINFO\@/$typeinfo/;
-$text =~ s/\@IMPORTS\@/$imports/;
+if ($option ne '-t') {
+  print "// GENERATED FILE. Edits to this file will be lost -- edit $tmpl instead.\n";
 
-print $text;
+  $text =~ s/\@TYPEINFO\@/$typeinfo/;
+  $text =~ s/\@IMPORTS\@/$imports/;
+
+  print $text;
+}

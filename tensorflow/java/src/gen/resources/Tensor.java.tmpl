@@ -56,11 +56,11 @@ public final class Tensor<T> implements AutoCloseable {
    *
    * <pre>{@code
    * // Valid: A 64-bit integer scalar.
-   * Tensor<TFInt64> s = Tensor.create(42L);
+   * Tensor<TFInt64> s = Tensor.create(42L, TFInt32.T);
    *
    * // Valid: A 3x2 matrix of floats.
    * float[][] matrix = new float[3][2];
-   * Tensor<TFFloat> m = Tensor.create(matrix);
+   * Tensor<TFFloat> m = Tensor.create(matrix, TFFloat.T);
    *
    * // Invalid: Will throw an IllegalArgumentException as an arbitrary Object
    * // does not fit into the TensorFlow type system.
@@ -71,7 +71,7 @@ public final class Tensor<T> implements AutoCloseable {
    * int[][] twoD = new int[2][];
    * twoD[0] = new int[1];
    * twoD[1] = new int[2];
-   * Tensor<TFInt32> x = Tensor.create(twoD, INT32);
+   * Tensor<TFInt32> x = Tensor.create(twoD, TFInt32.T);
    * }</pre>
    *
    * If the underlying object is a byte array, it can represent either a string or a uint8 tensor. The
@@ -102,34 +102,6 @@ public final class Tensor<T> implements AutoCloseable {
   	return create(obj, dataTypeOf(obj));
   }
   
-  /**
-   * Creates a tensor from an object.
-   * Requires the parameter {@code T} to match {@code type}, but this precondition is not
-   * checked. Use the class {@link org.tensorflow.Tensors} for methods that
-   * create Tensors in a fully type-safe way.
-   * @param obj the object supplying the tensor data. It type must be compatible with T.
-   * @param type the DataType representation of the type T
-   * @return the new tensor
-   */
-  public static <T> Tensor<T> create(Object obj, DataType type) {
-	  Tensor<T> t = new Tensor<T>(type);
-    t.shapeCopy = new long[numDimensions(obj)];
-    fillShape(obj, 0, t.shapeCopy);
-    if (t.dtype != DataType.STRING) {
-      int byteSize = elemByteSize(t.dtype) * numElements(t.shapeCopy);
-      t.nativeHandle = allocate(t.dtype.c(), t.shapeCopy, byteSize);
-      setValue(t.nativeHandle, obj);
-    } else if (t.shapeCopy.length != 0) {
-      throw new UnsupportedOperationException(
-          String.format(
-              "non-scalar DataType.STRING tensors are not supported yet (version %s). Please file a feature request at https://github.com/tensorflow/tensorflow/issues/new",
-              TensorFlow.version()));
-    } else {
-      t.nativeHandle = allocateScalarBytes((byte[]) obj);
-    }
-    return t;
-  }
-
   /**
    * Create an {@link DataType#INT32} Tensor with data from the given buffer.
    *
