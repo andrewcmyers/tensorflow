@@ -30,9 +30,10 @@ public class Types {
 
   private Types() {} // not instantiable
 
-  static final Map<Class<?>, DataType> typeCodes = new HashMap<>();
+  private static final Map<Class<?>, DataType> typeCodes = new HashMap<>();
 
-  /** Returns the DataType value corresponding to a TensorFlow type class. */
+  /** Returns the DataType value corresponding to a TensorFlow type class.
+   *  @param c The class describing the TensorFlow type of interest. */
   public static DataType dataType(Class<? extends TFType> c) {
     DataType dtype = typeCodes.get(c);
     if (dtype == null) {
@@ -41,12 +42,31 @@ public class Types {
     return dtype;
   }
 
-  static final Map<Class<?>, Object> scalars = new HashMap<>();
+  private static final Map<Class<?>, Object> zeros = new HashMap<>();
 
   /** Returns the zero value of type described by {@code c}, or null if
    *  the type (e.g., string) is not numeric and therefore has no zero value.
+   *  @param c The class describing the TensorFlow type of interest.
    */
   public static Object zeroValue(Class<? extends TFType> c) {
-    return scalars.get(c);
+    return zeros.get(c);
+  }
+
+  static {
+    Types.typeCodes.put(TFFloat.class, DataType.FLOAT);
+    Types.typeCodes.put(TFDouble.class, DataType.DOUBLE);
+    Types.typeCodes.put(TFInt32.class, DataType.INT32);
+    Types.typeCodes.put(TFUInt8.class, DataType.UINT8);
+    Types.typeCodes.put(TFInt64.class, DataType.INT64);
+    Types.typeCodes.put(TFBool.class, DataType.BOOL);
+    Types.typeCodes.put(TFString.class, DataType.STRING);
+
+    Types.zeros.put(TFFloat.class, 0.0f);
+    Types.zeros.put(TFDouble.class, 0.0);
+    Types.zeros.put(TFInt32.class, 0);
+    Types.zeros.put(TFUInt8.class, (byte) 0);
+    Types.zeros.put(TFInt64.class, 0L);
+    Types.zeros.put(TFBool.class, false);
+    Types.zeros.put(TFString.class, null); // no zero value
   }
 }
